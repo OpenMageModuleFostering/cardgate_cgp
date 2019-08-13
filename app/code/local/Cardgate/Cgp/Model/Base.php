@@ -251,6 +251,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 			exit();
 		}
 		
+		$statusWaitconf = $this->getConfigData( "waitconf_status" );
 		$statusPending = $this->getConfigData( "pending_status" );
 		$statusComplete = $this->getConfigData( "complete_status" );
 		$statusFailed = $this->getConfigData( "failed_status" );
@@ -325,7 +326,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 				// Direct debit pending status
 				$complete = false;
 				$newState = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
-				$newStatus = $statusPending;
+				$newStatus = $statusWaitconf;
 				$statusMessage = Mage::helper( 'cgp' )->__( 'Transaction pending: Waiting for confirmation.' );
 				$order->sendNewOrderEmail();
 				$order->addStatusToHistory( $order->getStatus(), $statusMessage, true );
@@ -366,7 +367,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 				// then set product's stock data to update
 				if ( ! $stockItemId ) {
 					// FIXME: This cant work!
-					$stockItem->setData( 'product_id', $product->getId() );
+					$stockItem->setData( 'product_id', $_item->getProductId() );
 					$stockItem->setData( 'stock_id', 1 );
 				} else {
 					$stock = $stockItem->getData();

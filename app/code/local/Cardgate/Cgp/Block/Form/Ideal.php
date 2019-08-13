@@ -16,15 +16,29 @@ class Cardgate_Cgp_Block_Form_Ideal extends Mage_Payment_Block_Form
 			'0721' => 'ING', 
 			'0751' => 'SNS Bank', 
 			'0001' => '------ Additional Banks ------', 
-			'0161' => 'Van Lanschot Bank', 
+			'0801' => 'Knab',
+			'0161' => 'Van Lanschot Bankiers', 
 			'0511' => 'Triodos Bank', 
 			'0761' => 'ASN Bank', 
-			'0771' => 'SNS Regio Bank' 
+			'0771' => 'SNS RegioBank' 
 	);
 
 	protected function _construct ()
 	{
 		parent::_construct();
+		
+		$client = new Varien_Http_Client('https://gateway.cardgateplus.com/cache/idealDirectory.dat');
+		try{
+			$response = $client->request();
+			if ($response->isSuccessful()) {
+				$aBanks = unserialize( $response->getBody() );
+				if ( is_array( $aBanks ) ) {
+					$this->_banks = $aBanks;
+				}
+			}
+		} catch (Exception $e) {
+		}
+		
 		$this->setTemplate( 'cardgate/cgp/form/ideal.phtml' );
 	}
 

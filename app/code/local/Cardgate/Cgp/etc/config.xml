@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Cardgate_Cgp>
-            <version>1.1.2</version>
+            <version>1.1.1</version>
         </Cardgate_Cgp>
     </modules>
     
@@ -342,8 +342,9 @@
                 <lang>nl</lang>                
                 <initialized_status>pending</initialized_status>                
                 <complete_status>processing</complete_status>
+                <waitconf_status>pending_payment</waitconf_status>
                 <failed_status>canceled</failed_status>
-                <fraud_status>canceled</fraud_status>
+                <fraud_status>fraud</fraud_status>
                 <use_backoffice_urls>0</use_backoffice_urls>
                 <orderemail_at_payment>1</orderemail_at_payment>
                 <autocreate_invoice>1</autocreate_invoice>
