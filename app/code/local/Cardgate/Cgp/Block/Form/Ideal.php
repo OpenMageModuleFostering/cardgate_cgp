@@ -76,7 +76,8 @@ class Cardgate_Cgp_Block_Form_Ideal extends Mage_Payment_Block_Form
 	private function getBankOptions ()
 	{
 		
-		$client = new Varien_Http_Client('https://gateway.cardgateplus.com/cache/idealDirectoryCUROPayments.dat');
+	    $ideal = Mage::getSingleton( 'cgp/gateway_ideal' );
+		$client = new Varien_Http_Client( $ideal->getGatewayUrl() . '/cache/idealDirectoryCUROPayments.dat' );
 		try{
 			$response = $client->request();
 			if ($response->isSuccessful()) {

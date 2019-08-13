@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Cardgate_Cgp>
-            <version>1.1.9</version>
+            <version>1.2.0</version>
         </Cardgate_Cgp>
     </modules>
     

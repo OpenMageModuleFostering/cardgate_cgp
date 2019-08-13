@@ -6,8 +6,7 @@
  * @category Mage
  * @package Cardgate_Cgp
  */
-class Cardgate_Cgp_Model_Base extends Varien_Object
-{
+class Cardgate_Cgp_Model_Base extends Varien_Object {
 
 	protected $_callback;
 
@@ -20,8 +19,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	/**
 	 * Initialize basic cgp settings
 	 */
-	public function _construct ()
-	{
+	public function _construct () {
 		$this->_config = Mage::getStoreConfig( 'cgp/settings' );
 	}
 
@@ -31,8 +29,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 * @param string $field        	
 	 * @return mixed
 	 */
-	public function getConfigData ( $field )
-	{
+	public function getConfigData ( $field ) {
 		if ( isset( $this->_config[$field] ) ) {
 			return $this->_config[$field];
 		} else {
@@ -46,8 +43,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 * @param array $data        	
 	 * @return Cardgate_Cgp_Model_Base
 	 */
-	public function setCallbackData ( $data )
-	{
+	public function setCallbackData ( $data ) {
 		$this->_callback = $data;
 		return $this;
 	}
@@ -58,8 +54,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 * @param string $field        	
 	 * @return string
 	 */
-	public function getCallbackData ( $field = null )
-	{
+	public function getCallbackData ( $field = null ) {
 		if ( $field === null ) {
 			return $this->_callback;
 		} else {
@@ -72,8 +67,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 *
 	 * @return bool
 	 */
-	public function isDebug ()
-	{
+	public function isDebug () {
 		return $this->getConfigData( 'debug' );
 	}
 
@@ -82,8 +76,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 *
 	 * @return bool
 	 */
-	public function isTest ()
-	{
+	public function isTest () {
 		return ( $this->getConfigData( 'test_mode' ) == "test" );
 	}
 
@@ -93,8 +86,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 * @param string $msg        	
 	 * @return void
 	 */
-	public function log ( $msg )
-	{
+	public function log ( $msg ) {
 		if ( $this->getConfigData( 'debug' ) ) {
 			Mage::log( $msg, null, $this->_logFileName );
 		}
@@ -105,10 +97,10 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 *
 	 * @return Cardgate_Cgp_Model_Base
 	 */
-	public function lock ()
-	{
+	public function lock ( $trxid = '' ) {
+		$lockKey = ( $trxid != '' ? $trxid : $this->getCallbackData( 'ref' ) );
 		$varDir = Mage::getConfig()->getVarDir( 'locks' );
-		$lockFilename = $varDir . DS . $this->getCallbackData( 'ref' ) . '.lock';
+		$lockFilename = $varDir . DS . 'cgp-' . $lockKey . '.lock';
 		$fp = @fopen( $lockFilename, 'x' );
 		
 		if ( $fp ) {
@@ -126,14 +118,25 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 *
 	 * @return Cardgate_Cgp_Model_Base
 	 */
-	public function unlock ()
-	{
+	public function unlock ( $trxid = '' ) {
+		$lockKey = ( $trxid != '' ? $trxid : $this->getCallbackData( 'ref' ) );
 		$this->_isLocked = false;
 		$varDir = Mage::getConfig()->getVarDir( 'locks' );
-		$lockFilename = $varDir . DS . $this->getCallbackData( 'ref' ) . '.lock';
+		$lockFilename = $varDir . DS . 'cgp-' . $lockKey . '.lock';
 		unlink( $lockFilename );
 		
 		return $this;
+	}
+
+	public function isLocked ( $trxid = '' ) {
+		if ( $this->_isLocked ) {
+			return true;
+		}
+		
+		$lockKey = ( $trxid != '' ? $trxid : $this->getCallbackData( 'ref' ) );
+		$varDir = Mage::getConfig()->getVarDir( 'locks' );
+		$lockFilename = $varDir . DS . 'cgp-' . $lockKey . '.lock';
+		return file_exists( $lockFilename );
 	}
 
 	/**
@@ -142,8 +145,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 * @param Mage_Sales_Model_Order $order        	
 	 * @return boolean
 	 */
-	protected function createInvoice ( Mage_Sales_Model_Order $order )
-	{
+	protected function createInvoice ( Mage_Sales_Model_Order $order ) {
 		if ( $order->canInvoice() && ! $order->hasInvoices() ) {
 			$invoice = $order->prepareInvoice();
 			$invoice->register();
@@ -165,8 +167,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 			}
 			
 			$statusMessage = $mail_invoice ? "Invoice # %s created and send to customer." : "Invoice # %s created.";
-			$order->addStatusToHistory( $order->getStatus(), 
-					Mage::helper( "cgp" )->__( $statusMessage, $invoice->getIncrementId(), $mail_invoice ) );
+			$order->addStatusToHistory( $order->getStatus(), Mage::helper( "cgp" )->__( $statusMessage, $invoice->getIncrementId(), $mail_invoice ) );
 			
 			return true;
 		}
@@ -180,8 +181,7 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 * @param Mage_Sales_Model_Order $order        	
 	 * @return void
 	 */
-	protected function eventInvoicingFailed ( $order )
-	{
+	protected function eventInvoicingFailed ( $order ) {
 		$storeId = $order->getStore()->getId();
 		
 		$ident = Mage::getStoreConfig( 'cgp/settings/notification_email' );
@@ -195,12 +195,32 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 		$mail->addTo( $recipient_email, $recipient_name );
 		$mail->setSubject( Mage::helper( "cgp" )->__( 'Automatic invoice creation failed' ) );
 		$mail->setBodyText( 
-				Mage::helper( "cgp" )->__( 
-						'Magento was unable to create an invoice for Order # %s after a successful payment via Card Gate (transaction # %s)', 
-						$order->getIncrementId(), $this->getCallbackData( 'transaction_id' ) ) );
+				Mage::helper( "cgp" )->__( 'Magento was unable to create an invoice for Order # %s after a successful payment via CardGate (transaction # %s)', $order->getIncrementId(), $this->getCallbackData( 'transaction_id' ) ) );
+		$mail->setBodyHtml( 
+				Mage::helper( "cgp" )->__( 'Magento was unable to create an invoice for <b>Order # %s</b> after a successful payment via CardGate <b>(transaction # %s)</b>', $order->getIncrementId(), 
+						$this->getCallbackData( 'transaction_id' ) ) );
+		$mail->send();
+	}
+
+	protected function eventRefundFailed ( $order ) {
+		$storeId = $order->getStore()->getId();
+		
+		$ident = Mage::getStoreConfig( 'cgp/settings/notification_email' );
+		$sender_email = Mage::getStoreConfig( 'trans_email/ident_general/email', $storeId );
+		$sender_name = Mage::getStoreConfig( 'trans_email/ident_general/name', $storeId );
+		$recipient_email = Mage::getStoreConfig( 'trans_email/ident_' . $ident . '/email', $storeId );
+		$recipient_name = Mage::getStoreConfig( 'trans_email/ident_' . $ident . '/name', $storeId );
+		
+		$mail = new Zend_Mail();
+		$mail->setFrom( $sender_email, $sender_name );
+		$mail->addTo( $recipient_email, $recipient_name );
+		$mail->setSubject( Mage::helper( "cgp" )->__( 'CardGate refund failed' ) );
+		$mail->setBodyText( 
+				Mage::helper( "cgp" )->__( 'CardGate was unable to succesfully complete a refund for Order # %s (transaction # %s). Please visit https://my.cardgate.com/ for more details.', $order->getIncrementId(), 
+						$this->getCallbackData( 'transaction_id' ) ) );
 		$mail->setBodyHtml( 
 				Mage::helper( "cgp" )->__( 
-						'Magento was unable to create an invoice for <b>Order # %s</b> after a successful payment via Card Gate <b>(transaction # %s)</b>', 
+						"CardGate was unable to succesfully complete a refund for <b>Order # %s</b> <b>(transaction # %s)</b>. Please visit <a href='https://my.cardgate.com/'>https://my.cardgate.com/</a> for more details.", 
 						$order->getIncrementId(), $this->getCallbackData( 'transaction_id' ) ) );
 		$mail->send();
 	}
@@ -211,17 +231,13 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 	 * @param Mage_Sales_Model_Order $order        	
 	 * @return boolean
 	 */
-	protected function validateAmount ( Mage_Sales_Model_Order $order )
-	{
+	protected function validateAmount ( Mage_Sales_Model_Order $order ) {
 		$amountInCents = ( int ) sprintf( '%.0f', $order->getGrandTotal() * 100 );
 		$callbackAmount = ( int ) $this->getCallbackData( 'amount' );
 		
 		if ( ( $amountInCents != $callbackAmount ) and ( abs( $callbackAmount - $amountInCents ) > 1 ) ) {
-			$this->log( 
-					'OrderID: ' . $order->getId() . ' do not match amounts. Sent ' . $amountInCents . ', received: ' .
-							 $callbackAmount );
-			$statusMessage = Mage::helper( "cgp" )->__( 
-					"Hacker attempt: Order total amount does not match CardGate's gross total amount!" );
+			$this->log( 'OrderID: ' . $order->getId() . ' do not match amounts. Sent ' . $amountInCents . ', received: ' . $callbackAmount );
+			$statusMessage = Mage::helper( "cgp" )->__( "Hacker attempt: Order total amount does not match CardGate's gross total amount!" );
 			$order->addStatusToHistory( $order->getStatus(), $statusMessage );
 			$order->save();
 			return false;
@@ -230,14 +246,51 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 		return true;
 	}
 
+	public function processRefundCallback () {
+		$id = $this->getCallbackData( 'ref' );
+		/**
+		 *
+		 * @var Mage_Sales_Model_Order $order
+		 */
+		$order = Mage::getModel( 'sales/order' );
+		$order->loadByIncrementId( $id );
+		
+		// Log callback data
+		$this->log( 'Receiving refund-callback data:' );
+		$this->log( $this->getCallbackData() );
+		
+		switch ( $this->getCallbackData( 'status_id' ) ) {
+			case "0":
+				$statusMessage = sprintf( Mage::helper( 'cgp' )->__( 'CardGate refund %s successfully authorised. Amount: %s' ), $this->getCallbackData( 'transaction_id' ), number_format( $this->getCallbackData( 'amount' ) / 100, 2 ) );
+				break;
+			case "300":
+				$statusMessage = sprintf( Mage::helper( 'cgp' )->__( 'CardGate refund %s failed. Amount: %s' ), $this->getCallbackData( 'transaction_id' ), number_format( $this->getCallbackData( 'amount' ) / 100, 2 ) );
+				$this->eventRefundFailed( $order );
+				break;
+			case "400":
+				$statusMessage = sprintf( Mage::helper( 'cgp' )->__( 'CardGate refund %s complete. Amount: %s' ), $this->getCallbackData( 'transaction_id' ), number_format( $this->getCallbackData( 'amount' ) / 100, 2 ) );
+				break;
+			default:
+				$msg = 'Refund-status not recognised: ' . $this->getCallbackData( 'status' );
+				$this->log( $msg );
+				die( $msg );
+		}
+		
+		$order->addStatusHistoryComment( $statusMessage );
+		$order->save();
+	}
+
 	/**
 	 * Process callback for all transactions
 	 *
 	 * @return void
 	 */
-	public function processCallback ()
-	{
+	public function processCallback () {
 		$id = $this->getCallbackData( 'ref' );
+		/**
+		 *
+		 * @var Mage_Sales_Model_Order $order
+		 */
 		$order = Mage::getModel( 'sales/order' );
 		$order->loadByIncrementId( $id );
 		
@@ -250,6 +303,16 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 			$this->log( 'Amount validation failed!' );
 			exit();
 		}
+		
+		$transactionid = $this->getCallbackData( 'transaction_id' );
+		
+		$payment = $order->getPayment();
+		$payment->setTransactionId( $transactionid );
+		
+		$info = $payment->getMethodInstance()->getInfoInstance();
+		$info->setAdditionalInformation( 'cardgate_transaction_id', $transactionid );
+		
+		// $this->log( $payment->getData() );
 		
 		$statusWaitconf = $this->getConfigData( "waitconf_status" );
 		$statusPending = $this->getConfigData( "pending_status" );
@@ -265,16 +328,14 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 		$newStatus = true;
 		$statusMessage = '';
 		
-		$this->log( 
-				"Got: {$statusPending}/{$statusComplete}/{$statusFailed}/{$statusFraud}/{$autocreateInvoice}/{$evInvoicingFailed} : " .
-						 $this->getCallbackData( 'status_id' ) );
+		$this->log( "Got: {$statusPending}/{$statusComplete}/{$statusFailed}/{$statusFraud}/{$autocreateInvoice}/{$evInvoicingFailed} : " . $this->getCallbackData( 'status_id' ) );
 		
 		switch ( $this->getCallbackData( 'status_id' ) ) {
 			case "0":
 				$complete = false;
 				$newState = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
 				$newStatus = $statusPending;
-				$statusMessage = Mage::helper( 'cgp' )->__( 'Payment sucessfully authorised.' );
+				$statusMessage = Mage::helper( 'cgp' )->__( 'Transaction in progress.' );
 				break;
 			case "100":
 				$complete = false;
@@ -318,9 +379,9 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 				$newState = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
 				$newStatus = $statusPending;
 				$statusMessage = Mage::helper( 'cgp' )->__( 'Transaction pending: Waiting for customer action.' );
- 				$order->sendNewOrderEmail();
- 				$order->setIsCustomerNotified( true );
- 				$order->save();
+				$order->sendNewOrderEmail();
+				$order->setIsCustomerNotified( true );
+				$order->save();
 				break;
 			case "701":
 				// Direct debit pending status
@@ -328,9 +389,9 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 				$newState = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
 				$newStatus = $statusWaitconf;
 				$statusMessage = Mage::helper( 'cgp' )->__( 'Transaction pending: Waiting for confirmation.' );
- 				$order->sendNewOrderEmail();
- 				$order->setIsCustomerNotified( true );
- 				$order->save();
+				$order->sendNewOrderEmail();
+				$order->setIsCustomerNotified( true );
+				$order->save();
 				break;
 			default:
 				$msg = 'Status not recognised: ' . $this->getCallbackData( 'status' );
@@ -339,22 +400,24 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 		}
 		
 		// Additional logging for direct-debit
-		if ( $this->getCallbackData( 'recipient_name' ) && $this->getCallbackData( 'recipient_iban' )
-		    && $this->getCallbackData( 'recipient_bic' ) && $this->getCallbackData( 'recipient_reference' )
-	    ) {
-	        $statusMessage.= "<br/>\n" . Mage::helper( 'cgp' )->__( 'Additional information' )." : "
-	            . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary' ) ." : ". $this->getCallbackData( 'recipient_name' )
-	            . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary IBAN' ) ." : ". $this->getCallbackData( 'recipient_iban' )
-	            . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary BIC' ) ." : ". $this->getCallbackData( 'recipient_bic' )
-	            . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Reference' ) ." : ". $this->getCallbackData( 'recipient_reference' );
-	    }
+		if ( $this->getCallbackData( 'recipient_name' ) && $this->getCallbackData( 'recipient_iban' ) && $this->getCallbackData( 'recipient_bic' ) && $this->getCallbackData( 'recipient_reference' ) ) {
+			$statusMessage .= "<br/>\n" . Mage::helper( 'cgp' )->__( 'Additional information' ) . " : " . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary' ) . " : " . $this->getCallbackData( 'recipient_name' ) . "<br/>\n" .
+					 Mage::helper( 'cgp' )->__( 'Benificiary IBAN' ) . " : " . $this->getCallbackData( 'recipient_iban' ) . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary BIC' ) . " : " . $this->getCallbackData( 'recipient_bic' ) .
+					 "<br/>\n" . Mage::helper( 'cgp' )->__( 'Reference' ) . " : " . $this->getCallbackData( 'recipient_reference' );
+			
+			$info->setAdditionalInformation( 'recipient_name', $this->getCallbackData( 'recipient_name' ) );
+			$info->setAdditionalInformation( 'recipient_iban', $this->getCallbackData( 'recipient_iban' ) );
+			$info->setAdditionalInformation( 'recipient_bic', $this->getCallbackData( 'recipient_bic' ) );
+			$info->setAdditionalInformation( 'recipient_reference', $this->getCallbackData( 'recipient_reference' ) );
+		
+		}
+		
+		$info->save();
 		
 		// Update only certain states
 		$canUpdate = false;
 		$undoCancel = false;
-		if ( $order->getState() == Mage_Sales_Model_Order::STATE_NEW ||
-				 $order->getState() == Mage_Sales_Model_Order::STATE_PENDING_PAYMENT ||
-				 $order->getState() == Mage_Sales_Model_Order::STATE_CANCELED ) {
+		if ( $order->getState() == Mage_Sales_Model_Order::STATE_NEW || $order->getState() == Mage_Sales_Model_Order::STATE_PENDING_PAYMENT || $order->getState() == Mage_Sales_Model_Order::STATE_CANCELED ) {
 			$canUpdate = true;
 		}
 		
@@ -363,37 +426,27 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 			if ( $_item->getStatusLabel() == ucfirst( $statusComplete ) ) {
 				$canUpdate = false;
 				// Uncancel an order if the payment is considered complete
-			} elseif ( ( $_item->getStatusLabel() == ucfirst( $statusFailed ) ) ||
-					 ( $_item->getStatusLabel() == ucfirst( $statusFraud ) ) ) {
+			} elseif ( ( $_item->getStatusLabel() == ucfirst( $statusFailed ) ) || ( $_item->getStatusLabel() == ucfirst( $statusFraud ) ) ) {
 				$undoCancel = true;
 			}
 		}
 		
-		// increase inventory if the payment failed
+		// Unclaim inventory if the payment failed
 		if ( $canUpdate && ! $complete && $canceled && $order->getStatus() != Mage_Sales_Model_Order::STATE_CANCELED ) {
+			$statusMessage .= "<br/>\n" . Mage::helper( 'cgp' )->__( "Unclaimed inventory because order changed to 'Canceled' state." );
 			foreach ( $order->getAllItems() as $_item ) {
-				$qty = $_item->getQtyOrdered();
 				$stockItem = Mage::getModel( 'cataloginventory/stock_item' )->loadByProduct( $_item->getProductId() );
-				$stockItemId = $stockItem->getId();
-				$stock = array();
 				// then set product's stock data to update
-				if ( ! $stockItemId ) {
-					// FIXME: This cant work!
+				if ( ! $stockItem->getId() ) {
 					$stockItem->setData( 'product_id', $_item->getProductId() );
 					$stockItem->setData( 'stock_id', 1 );
-				} else {
-					$stock = $stockItem->getData();
 				}
 				
-				$oldQty = $stockItem->getData( 'qty' );
-				$stockItem->setData( 'qty', $oldQty + $qty );
+				$stockItem->setData( 'qty', $stockItem->getData( 'qty' ) + $_item->getQtyOrdered() );
 				// call save() method to save your product with updated data
 				try {
 					$stockItem->save();
-					// $product->save($p);
-				} catch ( Exception $ex ) {
-					// handle the error here!!
-				}
+				} catch ( Exception $ex ) { }
 			}
 		}
 		
@@ -423,6 +476,31 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 		
 		// Update the status if changed
 		if ( $canUpdate && ( ( $newState != $order->getState() ) || ( $newStatus != $order->getStatus() ) ) ) {
+			
+			// Reclaim inventory
+			if ( $order->getState() == Mage_Sales_Model_Order::STATE_CANCELED && $newState == Mage_Sales_Model_Order::STATE_PROCESSING ) {
+				$statusMessage .= "<br/>\n" . Mage::helper( 'cgp' )->__( "Reclaimed inventory because order changed from 'Canceled' to 'Processing' state." );
+				foreach ( $order->getAllItems() as $_item ) {
+					$stockItem = Mage::getModel( 'cataloginventory/stock_item' )->loadByProduct( $_item->getProductId() );
+					if ( ! $stockItem->getId() ) {
+						$stockItem->setData( 'product_id', $_item->getProductId() );
+						$stockItem->setData( 'stock_id', 1 );
+					}
+					$stockItem->setData( 'qty', $stockItem->getData( 'qty' ) - $_item->getQtyOrdered() );
+					try {
+						$stockItem->save();
+					} catch ( Exception $ex ) {}
+				}
+			}
+			
+			// Set order state and status
+			if ( $newState == $order->getState() ) {
+				$order->addStatusToHistory( $newStatus, $statusMessage );
+			} else {
+				$order->setState( $newState, $newStatus, $statusMessage );
+			}
+			$this->log( "Changing state to '$newState' from '" . $order->getState() . "' with message '$statusMessage' for order ID: $id." );
+			
 			// Create an invoice when the payment is completed
 			if ( $complete && ! $canceled && $autocreateInvoice ) {
 				$invoiceCreated = $this->createInvoice( $order );
@@ -437,14 +515,6 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 					$this->eventInvoicingFailed( $order );
 				}
 			}
-			
-			// Set order state and status
-			if ( $newState == $order->getState() ) {
-			    $order->addStatusToHistory( $newStatus, $statusMessage );
-			} else {
-			    $order->setState( $newState, $newStatus, $statusMessage );
-			}
-			$this->log( "Changing state to '$newState' from '".$order->getState()."' with message '$statusMessage' for order ID: $id." );
 			
 			// Send new order e-mail
 			if ( $complete && ! $canceled && ! $order->getEmailSent() ) {

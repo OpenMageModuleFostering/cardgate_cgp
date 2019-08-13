@@ -63,7 +63,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </site_id>                        
+                        </site_id>
                         <hash_key translate="label comment">
                             <label>Hash Key</label>
                             <frontend_type>text</frontend_type>
@@ -73,6 +73,24 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </hash_key>
+                        <api_id translate="label comment">
+                            <label>RESTful API Username</label>
+                            <frontend_type>text</frontend_type>
+                            <comment><![CDATA[Needed only for refund-functionality: Fill in your API Username.]]></comment>
+                            <sort_order>41</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </api_id>
+                        <api_key translate="label comment">
+                            <label>RESTful API Key</label>
+                            <frontend_type>text</frontend_type>
+                            <comment><![CDATA[Needed only for refund-functionality: Fill in your secret API key. Please contact your account manager to retrieve the API Username and Key for your account.]]></comment>
+                            <sort_order>42</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </api_key>
                         <use_backoffice_urls translate="label comment">
                             <label>Use back-office URLs</label>
                             <frontend_type>select</frontend_type>
