@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/Cardgate_Cgp",
+    "type": "magento-module",
+    "license": "OSL-v3.0",
+    "homepage": "",
+    "description": "Card Gate Plus Payment Module",
+    "authors": [
+    {
+        "name": "Richard Schoots",
+        "email": "support@cardgate.com"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}

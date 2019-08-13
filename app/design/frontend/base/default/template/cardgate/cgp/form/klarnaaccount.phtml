@@ -1,0 +1,100 @@
+<?php
+/**
+ * Magento CardGatePlus payment extension
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ *
+ * @category    Mage
+ * @package     CardGate_Payment
+ * @author      Paul Saparov, <support@cardgate.com>
+ * @copyright   Copyright (c) 2011 CardGatePlus B.V. (http://www.cardgateplus.com)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+?>
+<?php $_code = $this->getMethodCode() ?>
+<ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
+    <li>
+        <div style="border:1px solid #7ba7c9;min-width:110px;width:100%;max-width:800px;background-color:#fff;display:inline-block;padding:3px;">
+            <div style="float:left;margin-left:5px;margin-top:5px;margin-bottom:5px;">
+                <img src='<?php echo $this->getKlarnaAccountLogoUrl(); ?>'><br>
+                <div id="account01"></div>
+                <br>
+
+                <?php echo $this->beginIsEu(); ?>
+
+                <label><?php echo $this->getGenderLabel(); ?></label><br>
+                <div class="v-fix" >
+                    <input
+                        type="radio"
+                        name="payment[cgp][klarna-account-gender]"
+                        value="m"
+                        id="id_cgp_klarna_account_gender_male"
+                        />
+                    <label style="float: none;" for="id_cgp_klarna_account_gender_male">
+                        <?php echo $this->getMaleLabel(); ?>
+                    </label>
+                    &nbsp;&nbsp;
+                    <input
+                        type="radio"
+                        name="payment[cgp][klarna-account-gender]"
+                        value="f"
+                        id="id_cgp_klarna_account_gender_female"
+                        class="validate-one-required"
+                        />
+                    <label style="float: none;" for="id_cgp_klarna_account_gender_female">
+                        <?php echo $this->getFemaleLabel(); ?>
+                    </label>
+                </div><br>
+                <div style="float:left;margin-top:5px;">
+                    <label><?php echo $this->getBirthdayLabel(); ?></label><br>
+                    <div class="v-fix" >
+                        <select name="payment[cgp][klarna-account-dob_day]" class="validate-select" style="width:50px;">
+                            <?php echo $this->getDay(); ?>
+                        </select>
+                    </div>
+                    <div class="v-fix" style="padding-left:6px;">
+                        <select name="payment[cgp][klarna-account-dob_month]" class="validate-select" style="width:80px;">
+                            <?php echo $this->getMonth(); ?>
+                        </select>
+                    </div>
+                    <div class="v-fix" style="padding-left:7px;">
+                        <select name="payment[cgp][klarna-account-dob_year]" class="validate-select" style="width:80px;">
+                            <?php echo $this->getYear(); ?>
+                        </select>
+                    </div>
+                </div>
+                <br><br><br>  
+
+                <?php echo $this->endIsEu(); ?>
+                <?php echo $this->beginIsNotEu(); ?>
+                <div style="float:left;margin-top:5px;">
+                    <label><?php echo $this->getPersonalNumberLabel(); ?></label><br>
+                        <input name="payment[cgp][klarna-account-personal-number]" class="required-entry" style="width:100px;">
+                </div><br><br>
+                <?php echo $this->endIsNotEu(); ?>
+
+                <div style="float:left;margin-top:0px;">
+                    <label><?php echo $this->getLanguageLabel(); ?></label><br>
+                        <select name="payment[cgp][klarna-account-language]" class="validate-select" style="width:100px;">
+                            <?php echo $this->getLanguage(); ?>
+                        </select>
+                </div>
+                <br>
+                <?php echo $this->getGermanNotice(); ?>
+            </div>
+        </div>
+        <script src="https://cdn.klarna.com/public/kitt/core/v1.0/js/klarna.min.js"></script>
+        <script src="https://cdn.klarna.com/public/kitt/toc/v1.1/js/klarna.terms.min.js"></script>
+        <script>
+<?php
+echo $this->getKlarnaAccountTerms();
+echo $this->getKlarnaAccountConsent();
+?>
+        </script>
+    </li>
+</ul>

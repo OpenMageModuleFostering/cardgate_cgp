@@ -1,0 +1,15 @@
+<?php
+/*
+		$session = Mage::getSingleton('checkout/session');
+		if ($session->getCgpOnestepCheckout() == true) {
+			$url = Mage::getUrl('cgp/standard/cancel/', array('_secure' => true));
+			header("Location: $url");
+			exit();
+		}
+		$session->setCgpOnestepQuoteId($session->getCardgateQuoteId());
+		$session->setCgpOnestepCheckout(true);
+ */
+?>
+<?php echo Mage::helper('cgp')->__('You will be redirected to finish your payment.'); ?>
+<?php echo $this->getForm(); ?>
+<script type="text/javascript">document.getElementById("cardgateplus_checkout").submit();</script>

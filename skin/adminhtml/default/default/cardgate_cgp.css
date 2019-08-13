@@ -1,0 +1,28 @@
+/* cardgate */
+h3.cardgate-header { background:url(images/cardgate/cardgate_cgp.png) no-repeat 0 0; height:0; overflow:hidden; padding:14px 0 0; width:71px; }
+
+ul.tabs a.cardgate-section,
+ul.tabs a.cardgate-section:hover { background:url(images/tabs_span_bg.gif) repeat-x 0 100%; border-bottom:none; padding:0.5em 0.5em 0.28em 1.5em; }
+ul.tabs a.cardgate-section:hover { background-color:#d8e6e6; }
+ul.tabs a.cardgate-section.active, ul.tabs a.cardgate-section.active:hover { background-color:#fff; }
+ul.tabs a.cardgate-section span,
+ul.tabs a.cardgate-section:hover span { background:url(images/cardgate/cardgate_cgp.png) no-repeat 0 0; height:0; overflow:hidden; padding:14px 0 0; width:71px; }
+
+.cardgate-selection { border-collapse:collapse; width:100%; }
+.cardgate-selection .cardgate-selection-info { text-align:right; }
+.cardgate-selection th { font-size:13px; padding:5px 0; text-align:left; vertical-align:middle; }
+.cardgate-selection td { background:#f2f2f2; border-bottom:5px solid #fff; padding:5px; vertical-align:top; }
+.cardgate-selection .cardgate-selection-simplified { background:#fff; padding-left:35px; }
+.cardgate-selection td a { color:#2997d8; }
+.cardgate-selection td strong { color:#3c616a; }
+.cardgate-selection td label { display:block; padding-left:30px; text-indent:-30px; }
+.cardgate-selection td div label { display:inline; padding:0; text-indent:0; }
+.cardgate-selection td input { height:13px; overflow:hidden; margin-right:15px; position:relative; top:-1px; width:13px; vertical-align:middle; }
+
+.cardgate-config .form-list { width:100%; }
+.cardgate-config tr.hover { background:#f7f7f7; }
+.cardgate-config tr.hover label { cursor:help; }
+
+.cardgate-credentials { border:1px solid #f2f2f2; }
+.cardgate-credentials caption { padding:5px; text-align:left; }
+.cardgate-credentials .value { color:#ccc; }
