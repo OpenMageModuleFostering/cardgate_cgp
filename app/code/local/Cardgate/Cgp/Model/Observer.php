@@ -9,9 +9,20 @@
 class Cardgate_Cgp_Model_Observer extends Mage_Core_Model_Abstract
 {
 
+	public function initFromOrderSessionQuoteInitialized ( Varien_Event_Observer $observer )
+	{
+		$quote = $observer->getEvent()->getSessionQuote()->getQuote();
+		self::addInvoiceFeeToQuote( $quote );
+	}
+	
 	public function salesQuoteCollectTotalsAfter ( Varien_Event_Observer $observer )
 	{
 		$quote = $observer->getEvent()->getQuote();
+		self::addInvoiceFeeToQuote( $quote );
+	}
+	
+	protected static function addInvoiceFeeToQuote( $quote )
+	{
 		$quote->setInvoiceFee( 0 );
 		$quote->setBaseInvoiceFee( 0 );
 		$quote->setInvoiceFeeExcludedVat( 0 );

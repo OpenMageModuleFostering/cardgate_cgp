@@ -20,6 +20,23 @@
             <show_in_website>1</show_in_website>
             <show_in_store>1</show_in_store>
             <groups>
+                <version translate="label" module="cgp">
+                    <label>Version</label>
+                    <sort_order>0</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <test_mode translate="label comment">
+                            <label>Version</label>
+                            <frontend_model>cgp/adminhtml_system_config_source_version</frontend_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </test_mode>
+                    </fields>
+                </version>
                 <settings translate="comment">
                     <label>Settings</label>
                     <comment><![CDATA[<strong>Note:</strong> Don't forget to set-up in the <a href='https://my.cardgate.com/' target='_blank'>Merchant Backoffice</a> a Control URL to 'http://www.yourdomain.com/cgp/standard/control/'.]]></comment>
@@ -136,7 +153,7 @@
                         <initialized_status translate="label">
                             <label>Payment in progress status</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <source_model>cgp/adminhtml_system_config_source_orderstatus</source_model>
                             <sort_order>130</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -145,16 +162,25 @@
                         <complete_status translate="label">
                             <label>Payment complete status</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <source_model>cgp/adminhtml_system_config_source_orderstatus</source_model>
                             <sort_order>140</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </complete_status>                        
+                        </complete_status>
+                        <waitconf_status translate="label">
+                            <label>Payment waiting confirmation</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>cgp/adminhtml_system_config_source_orderstatus</source_model>
+                            <sort_order>145</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </waitconf_status>               
                         <failed_status translate="label">
                             <label>Payment failed status</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <source_model>cgp/adminhtml_system_config_source_orderstatus</source_model>
                             <sort_order>150</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -163,7 +189,7 @@
                         <fraud_status translate="label">
                             <label>Payment fraud status</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_order_status</source_model>
+                            <source_model>cgp/adminhtml_system_config_source_orderstatus</source_model>
                             <sort_order>160</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -265,7 +291,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -348,13 +374,13 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </sort_order>
-                                                <payment_fee translate="label">
+                        <payment_fee translate="label">
                             <label>Payment fee</label>
                             <sort_order>110</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -443,7 +469,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -532,7 +558,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -621,7 +647,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -710,7 +736,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -799,7 +825,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -888,7 +914,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -977,7 +1003,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1066,7 +1092,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1155,7 +1181,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1244,7 +1270,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1342,7 +1368,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1439,7 +1465,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1528,7 +1554,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1625,7 +1651,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1714,7 +1740,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1797,13 +1823,13 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </sort_order>
-                                                <payment_fee translate="label">
+                        <payment_fee translate="label">
                             <label>Payment fee</label>
                             <sort_order>110</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1834,7 +1860,185 @@
                             <comment>Short description which is shown on orders/invoices</comment>
                         </payment_fee_label>
                     </fields>
-                </cgp_przelewy24>     
+                </cgp_przelewy24>
+                
+                <cgp_afterpay translate="label" module="cgp">
+                    <label>Afterpay</label>
+                    <sort_order>380</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <allowspecific translate="label">
+                            <label>Payment from applicable countries</label>
+                            <frontend_type>allowspecific</frontend_type>
+                            <sort_order>20</sort_order>
+                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </allowspecific>
+                        <specificcountry translate="label">
+                            <label>Payment from Specific countries</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>30</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </specificcountry>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                        <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment> 
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
+                    </fields>
+                </cgp_afterpay>
+                
+                <cgp_bitcoin translate="label" module="cgp">
+                    <label>Bitcoin</label>
+                    <sort_order>390</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <allowspecific translate="label">
+                            <label>Payment from applicable countries</label>
+                            <frontend_type>allowspecific</frontend_type>
+                            <sort_order>20</sort_order>
+                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </allowspecific>
+                        <specificcountry translate="label">
+                            <label>Payment from Specific countries</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>30</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </specificcountry>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                        <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment> 
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
+                    </fields>
+                </cgp_bitcoin>
                 
             </groups>
         </cgp>

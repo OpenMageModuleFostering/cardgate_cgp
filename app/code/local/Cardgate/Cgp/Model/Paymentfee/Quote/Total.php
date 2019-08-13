@@ -9,9 +9,25 @@
 class Cardgate_Cgp_Model_Paymentfee_Quote_Total extends Mage_Sales_Model_Quote_Address_Total_Abstract
 {
 
+	/**
+	 * @var Mage_Sales_Model_Quote
+	 */
 	protected $address;
 
+	/**
+	 * @var Mage_Sales_Model_Quote
+	 */
 	protected $paymentMethod;
+
+	/**
+	 * @var Mage_Sales_Model_Quote_Payment
+	 */
+	protected $payment;
+	
+	/**
+	 * @var Mage_Sales_Model_Quote
+	 */
+	protected $quote;
 
 	/**
 	 * Collect the order total
@@ -23,11 +39,12 @@ class Cardgate_Cgp_Model_Paymentfee_Quote_Total extends Mage_Sales_Model_Quote_A
 	 */
 	public function collect ( Mage_Sales_Model_Quote_Address $address )
 	{
+		
 		if ( $address->getAddressType() != "shipping" ) {
 			return $this;
 		}
 		
-		$this->address = $address;
+		$this->address = &$address;
 		$this->quote = $address->getQuote();
 		$this->payment = $this->quote->getPayment();
 		
@@ -46,12 +63,13 @@ class Cardgate_Cgp_Model_Paymentfee_Quote_Total extends Mage_Sales_Model_Quote_A
 			return $this;
 		}
 		
-		if ( $this->payment->hasMethodInstance() ) {
+		if ( is_a( $this->payment->getMethodInstance(),'Cardgate_Cgp_Model_Gateway_Abstract' ) ) {
 			$this->paymentMethod = $this->payment->getMethodInstance();
 			if ( substr( $this->paymentMethod->getCode(), 0, 3 ) == 'cgp' ) {
-				$this->_initInvoiceFee();
+                $this->_initInvoiceFee();
 			}
 		}
+
 	}
 
 	/**
@@ -92,6 +110,7 @@ class Cardgate_Cgp_Model_Paymentfee_Quote_Total extends Mage_Sales_Model_Quote_A
 		// Add our invoice fee to the address totals
 		$this->address->setBaseGrandTotal( $this->address->getBaseGrandTotal() + $fee['base_incl'] );
 		$this->address->setGrandTotal( $this->address->getGrandTotal() + $fee['incl'] );
+		
 	}
 
 	/**
@@ -104,6 +123,7 @@ class Cardgate_Cgp_Model_Paymentfee_Quote_Total extends Mage_Sales_Model_Quote_A
 	 */
 	public function fetch ( Mage_Sales_Model_Quote_Address $address )
 	{
+		
 		if ( $address->getAddressType() != "shipping" ) {
 			return $this;
 		}

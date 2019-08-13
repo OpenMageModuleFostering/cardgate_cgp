@@ -123,6 +123,10 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action
 		
 		if ( $quote->getId() ) {
 			$quote->setIsActive( true );
+			if ($quote->getReservedOrderId()) {
+				$quote->setOrigOrderId( $quote->getReservedOrderId() );
+				$quote->setReservedOrderId();
+			}
 			$quote->save();
 		}
 		
@@ -186,6 +190,10 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action
 		} else {
 			if ( $quote->getId() ) {
 				$quote->setIsActive( true );
+				if ($quote->getReservedOrderId()) {
+					$quote->setOrigOrderId( $quote->getReservedOrderId() );
+					$quote->setReservedOrderId();
+				}
 				$quote->save();
 			}
 		}

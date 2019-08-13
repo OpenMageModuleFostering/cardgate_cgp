@@ -14,8 +14,6 @@ class Cardgate_Cgp_Model_Paymentfee_Quote_Quote extends Mage_Sales_Model_Quote
 	{
 		$totals = parent::getTotals();
 		
-
-
 		unset( $totals['cgp_tax'] );
 		$totalsIndex = array_keys( $totals );
 		if ( array_search( 'cgp_fee', $totalsIndex ) === false ) {

@@ -20,7 +20,6 @@ class Cardgate_Cgp_Model_Paymentfee_Quote_TaxTotal extends Mage_Sales_Model_Quot
 	public function collect ( Mage_Sales_Model_Quote_Address $address )
 	{
 		$quote = $address->getQuote();
-		
 		if ( ! is_a( $quote, 'Cardgate_Cgp_Model_Paymentfee_Quote_Quote' ) ) {
 			throw new Exception( 'Plugin clash detected. ' . get_class( $quote ) );
 		}
