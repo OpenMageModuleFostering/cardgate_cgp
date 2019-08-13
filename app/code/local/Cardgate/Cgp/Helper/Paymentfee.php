@@ -34,22 +34,33 @@ class Cardgate_Cgp_Helper_Paymentfee extends Mage_Payment_Helper_Data
 		}
 		
 		$paymentfee = str_replace(",", ".", $paymentfee);
+		$percentage = 0;
 		if ( strpos( $paymentfee, ';' ) > 0 ) {
 			$fees = explode( ";", $paymentfee );
 			$charge = 0;
-			if ( $fees[0] > 0 )
+			if ( $fees[0] > 0 ) {
 				$charge += $fees[0];
-			else
+			} else {
+			    $percentage = ( ( $fees[0] * - 1 ) / 100.0 );
 				$charge += $order_total * ( ( $fees[0] * - 1 ) / 100.0 );
+			}
 			
-			if ( $fees[1] > 0 )
+			if ( $fees[1] > 0 ) {
 				$charge += $fees[1];
-			else
+			} else {
+			    $percentage = ( ( $fees[1] * - 1 ) / 100.0 );
 				$charge += $order_total * ( ( $fees[1] * - 1 ) / 100.0 );
+			}
 		} elseif ( $paymentfee > 0 ) {
 			$charge = $paymentfee;
 		} elseif ( $paymentfee < 0 ) {
+		    $percentage = ( ( $paymentfee * - 1 ) / 100.0 );
 			$charge = $order_total * ( ( $paymentfee * - 1 ) / 100.0 );
+		}
+		
+		// YYY: Apply percentage on total charge too
+		if ( $percentage > 0 ) {
+		    $charge = $charge + ( $charge * $percentage );
 		}
 		
 		$address = $quote->getShippingAddress();
