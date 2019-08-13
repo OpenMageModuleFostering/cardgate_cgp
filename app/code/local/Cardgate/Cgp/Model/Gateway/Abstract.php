@@ -321,7 +321,12 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 		
 		foreach ( $order->getAllItems() as $itemId => $item ) {
 			if ( $item->getQtyToInvoice() > 0 ) {
-				$cartitems[] = array(
+				$aAdditionalCartData = array();
+				$stockItem = Mage::getModel( 'cataloginventory/stock_item' )->loadByProduct( $item->getProductId() );
+				if ( $stockItem->getUseConfigManageStock() ) {
+					$aAdditionalCartData['stock'] = max( floatval( $stockItem->getQty() ), 0 );
+				}
+				$cartitems[] = array_merge( array(
 					'quantity' => $item->getQtyToInvoice(),
 					'sku' => $item->getSku(),
 					'name' => $item->getName(),
@@ -330,7 +335,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 					'vat' => ( float ) $item->getData( 'tax_percent' ),
 					'vat_inc' => 1,
 					'type' => 1
-				);
+				), $aAdditionalCartData );
 			}
 		}
 		
