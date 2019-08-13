@@ -6,7 +6,7 @@
  * @package     Cardgate_Cgp
  */
 
-class Cardgate_Model_Paymentfee_Invoice_Pdf_Total extends Mage_Sales_Model_Order_Pdf_Total_Default
+class Cardgate_Cgp_Model_Paymentfee_Invoice_Pdf_Total extends Mage_Sales_Model_Order_Pdf_Total_Default
 {
 
     /**
