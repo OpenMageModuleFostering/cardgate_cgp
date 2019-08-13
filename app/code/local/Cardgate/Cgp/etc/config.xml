@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Cardgate_Cgp>
-            <version>1.1.15</version>
+            <version>1.1.2</version>
         </Cardgate_Cgp>
     </modules>
     
@@ -333,17 +333,7 @@
                 <active>1</active>
                 <model>cgp/gateway_przelewy24</model>
                 <title>CGP Przelewy24</title>
-            </cgp_przelewy24>
-            <cgp_afterpay>
-                <active>1</active>
-                <model>cgp/gateway_afterpay</model>
-                <title>CGP Afterpay</title>
-            </cgp_afterpay>
-            <cgp_bitcoin>
-                <active>1</active>
-                <model>cgp/gateway_bitcoin</model>
-                <title>CGP Bitcoin</title>
-            </cgp_bitcoin>
+            </cgp_przelewy24>                 
         </payment>
         
         <cgp>
@@ -352,9 +342,8 @@
                 <lang>nl</lang>                
                 <initialized_status>pending</initialized_status>                
                 <complete_status>processing</complete_status>
-                <waitconf_status>pending_payment</waitconf_status>
                 <failed_status>canceled</failed_status>
-                <fraud_status>fraud</fraud_status>
+                <fraud_status>canceled</fraud_status>
                 <use_backoffice_urls>0</use_backoffice_urls>
                 <orderemail_at_payment>1</orderemail_at_payment>
                 <autocreate_invoice>1</autocreate_invoice>
@@ -454,12 +443,7 @@
                 <active>0</active>
                 <model>cgp/gateway_przelewy24</model>
                 <title>Przelewy24</title>
-            </cgp_przelewy24>
-            <cgp_afterpay translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_afterpay</model>
-                <title>Afterpay</title>
-            </cgp_afterpay>
+            </cgp_przelewy24>              
         </cgp>            
     </default>
 

@@ -6,7 +6,8 @@
  * @category Mage
  * @package Cardgate_Cgp
  */
-class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action {
+class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action
+{
 
 	private $_gatewayModel;
 
@@ -16,10 +17,12 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action 
 	 * @param array $data        	
 	 * @return boolean
 	 */
-	protected function validate ( $data ) {
+	protected function validate ( $data )
+	{
 		$base = Mage::getSingleton( 'cgp/base' );
 		
-		$hashString = ( ( $data['is_test'] || $data['testmode'] ) ? 'TEST' : '' ) . $data['transaction_id'] . $data['currency'] . $data['amount'] . $data['ref'] . $data['status'] . $base->getConfigData( 'hash_key' );
+		$hashString = ( $data['is_test'] ? 'TEST' : '' ) . $data['transaction_id'] . $data['currency'] . $data['amount'] .
+				 $data['ref'] . $data['status'] . $base->getConfigData( 'hash_key' );
 		
 		if ( md5( $hashString ) == $data['hash'] ) {
 			return true;
@@ -31,10 +34,11 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action 
 	/**
 	 * Check if within the URL is param model
 	 * if not, return default gateway model
-	 *
+	 * 
 	 * @return string
 	 */
-	protected function getGatewayModel () {
+	protected function getGatewayModel ()
+	{
 		if ( $this->_gatewayModel ) {
 			return $this->_gatewayModel;
 		}
@@ -52,7 +56,8 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action 
 	/**
 	 * Redirect customer to the gateway using his prefered payment method
 	 */
-	public function redirectAction () {
+	public function redirectAction ()
+	{
 		$paymentModel = 'cgp/' . $this->getGatewayModel();
 		Mage::register( 'cgp_model', $paymentModel );
 		
@@ -71,15 +76,18 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action 
 	/**
 	 * After a failed transaction a customer will be send here
 	 */
-	public function cancelAction () {
+	public function cancelAction ()
+	{
 		switch ( $_REQUEST['cgpstatusid'] ) {
 			case 0:
-				$message = $this->__( 'Your payment is being evaluated by the bank. Please do not attempt to pay again, until your payment is either confirmed or denied by the bank.' );
+				$message = $this->__( 
+						'Your payment is being evaluated by the bank. Please do not attempt to pay again, until your payment is either confirmed or denied by the bank.' );
 				break;
 			case 305:
 				break;
 			case 300:
-				$message = $this->__( 'Your payment has failed. If you wish, you can try using a different payment method.' );
+				$message = $this->__( 
+						'Your payment has failed. If you wish, you can try using a different payment method.' );
 				break;
 		}
 		if ( isset( $message ) ) {
@@ -115,7 +123,7 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action 
 		
 		if ( $quote->getId() ) {
 			$quote->setIsActive( true );
-			if ( $quote->getReservedOrderId() ) {
+			if ($quote->getReservedOrderId()) {
 				$quote->setOrigOrderId( $quote->getReservedOrderId() );
 				$quote->setReservedOrderId();
 			}
@@ -131,7 +139,8 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action 
 	/**
 	 * After a successful transaction a customer will be send here
 	 */
-	public function successAction () {
+	public function successAction ()
+	{
 		$session = Mage::getSingleton( 'checkout/session' );
 		$quote = Mage::getModel( 'sales/quote' )->load( $session->getCardgateQuoteId() );
 		if ( $quote->getId() ) {
@@ -141,15 +150,16 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action 
 		// clear session flag so that next order will redirect to the gateway
 		// $session->setCgpOnestepCheckout(false);
 		
-		$this->_redirect( 'checkout/onepage/success', array(
-			'_secure' => true
+		$this->_redirect( 'checkout/onepage/success', array( 
+				'_secure' => true 
 		) );
 	}
 
 	/**
 	 * Control URL called by gateway
 	 */
-	public function controlAction () {
+	public function controlAction ()
+	{
 		$base = Mage::getModel( 'cgp/base' );
 		$data = $this->getRequest()->getPost();
 		
@@ -162,29 +172,25 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action 
 		}
 		
 		// Process callback
-		if ( intval( $data['amount'] ) < 0 ) {
-			$base->setCallbackData( $data )->processRefundCallback();
-		} else {
-			$base->setCallbackData( $data )->processCallback();
-		}
+		$base->setCallbackData( $data )->processCallback();
 		
 		// Obtain quote and status
 		$status = ( int ) $data['status'];
 		$quote = Mage::getModel( 'sales/quote' )->load( $data['extra'] );
 		
+		// Set Mage_Sales_Model_Quote to inactive and delete
 		if ( 200 <= $status && $status <= 299 ) {
-			// Set Mage_Sales_Model_Quote to inactive and delete
+			
+			// $retain = $base->getConfigData('retain_cart_on_cancel');
 			if ( $quote->getId() ) {
 				$quote->setIsActive( false );
 				$quote->delete();
 			}
-		} elseif ( 400 <= $status && $status <= 499 ) {
-			// Refund callback - do nothing
-		} else {
 			// Set Mage_Sales_Model_Quote to active and save
+		} else {
 			if ( $quote->getId() ) {
 				$quote->setIsActive( true );
-				if ( $quote->getReservedOrderId() ) {
+				if ($quote->getReservedOrderId()) {
 					$quote->setOrigOrderId( $quote->getReservedOrderId() );
 					$quote->setReservedOrderId();
 				}
@@ -195,47 +201,4 @@ class Cardgate_Cgp_StandardController extends Mage_Core_Controller_Front_Action 
 		// Display transaction_id and status
 		echo $data['transaction_id'] . '.' . $data['status'];
 	}
-	
-	public function testAction () {
-		$base = Mage::getModel( 'cgp/base' );
-		switch ( $this->getRequest()->getParam('action') ) {
-			case "restful":
-				echo '<pre>';
-				if ( $this->getRequest()->getParam('hash') != md5( $base->getConfigData( 'site_id' ) . $base->getConfigData( 'hash_key' ) ) ) {
-					die ( 'HASHKEY ERROR' );
-				}
-				
-				/**
-				 * @var Cardgate_Cgp_Model_Gateway_Default $gateway
-				 */
-				$gateway = Mage::getModel( 'cgp/gateway_default');
-				$result = $gateway->doApiCall( 'billingoptions/' . $gateway->getConfigData( 'site_id' ));
-				if ( $result['code'] == 200 ) {
-					echo "OK.\nRESTful API call for API user '" . $gateway->getConfigData( 'api_id' ) . "' successfull.\n\n-------------\nBilling options for site " . $gateway->getConfigData( 'site_id' ) . ":\n-------------\n\n";
-					foreach ($result['result']['billing_options'] as $option) {
-						echo "{$option['name']}\n";
-					}
-				} else {
-					echo "ERROR.\nRESTful API call for API user '" . $gateway->getConfigData( 'api_id' ) . "' did not return status 200.\n\n-------------\nResult:\n-------------\n\n";
-					print_r( $result );
-				}
-				break;
-			default:
-				echo "NOT IMPLEMENTED";
-				break;
-		}
-	}
-	
-	public function versionAction () {
-		$base = Mage::getModel( 'cgp/base' );
-		if ( $this->getRequest()->getParam('hash') != md5( $base->getConfigData( 'site_id' ) . $base->getConfigData( 'hash_key' ) ) ) {
-			die ( json_encode( array ( 'error'=>true, 'message'=>'Hash error' ) ) );
-		}
-		/**
-		 * @var Cardgate_Cgp_Model_Gateway_Default $gateway
-		 */
-		$gateway = Mage::getModel( 'cgp/gateway_default');
-		die ( json_encode( array ( 'plugin_version'=>$gateway->getPluginVersion(), 'magento_version'=>Mage::getVersion() ) ) );
-	}
-	
 }
