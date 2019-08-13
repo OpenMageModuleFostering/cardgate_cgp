@@ -121,18 +121,22 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 
 	protected $_canCapturePartial = true;
 
-    public function __construct()
-    {
-    	/**
-    	 * @var Cardgate_Cgp_Model_Base $base
-    	 */
-    	$base = Mage::getSingleton( 'cgp/base' );
-    	if ( ! $base->getConfigData( 'api_key' ) || ! $base->getConfigData( 'api_id' ) ) {
-    		$this->_canRefund = false;
-    		$this->_canRefundInvoicePartial = false;
-    	}
-    }
-	
+	protected $_canCompleteByMerchant = false; // customers need to complete transactions
+
+	protected $_infoBlockType = 'cgp/info_payment';
+
+	public function __construct()
+	{
+		/**
+		 * @var Cardgate_Cgp_Model_Base $base
+		 */
+		$base = Mage::getSingleton( 'cgp/base' );
+		if ( ! $base->isRESTCapable() ) {
+			$this->_canRefund = false;
+			$this->_canRefundInvoicePartial = false;
+		}
+	}
+
 	/**
 	 * Return Gateway Url
 	 *
@@ -203,7 +207,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 	/**
 	 * Magento tries to set the order from payment/, instead of cgp/
 	 *
-	 * @param Mage_Sales_Model_Order $order        	
+	 * @param Mage_Sales_Model_Order $order
 	 * @return void
 	 */
 	public function setSortOrder ( $order ) {
@@ -213,7 +217,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 	/**
 	 * Append the current model to the URL
 	 *
-	 * @param string $url        	
+	 * @param string $url
 	 * @return string
 	 */
 	function getModelUrl ( $url ) {
@@ -238,15 +242,15 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 	/**
 	 * Retrieve config value for store by path
 	 *
-	 * @param string $path        	
-	 * @param mixed $store        	
+	 * @param string $path
+	 * @param mixed $store
 	 * @return mixed
 	 */
 	public function getConfigData ( $field, $storeId = null ) {
 		if ( $storeId === null ) {
 			$storeId = $this->getStore();
 		}
-		
+
 		$configSettings = Mage::getStoreConfig( $this->_module . '/settings', $storeId );
 		if ( ! is_array( $configSettings ) )
 			$configSettings = array();
@@ -254,7 +258,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 		if ( ! is_array( $configGateway ) )
 			$configGateway = array();
 		$config = array_merge( $configSettings, $configGateway );
-		
+
 		return @$config[$field];
 	}
 
@@ -266,7 +270,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 	public function validate () {
 		parent::validate();
 		$base = Mage::getSingleton( 'cgp/base' );
-		
+
 		$currency_code = $this->getQuote()->getBaseCurrencyCode();
 		if ( empty( $currency_code ) ) {
 			$currency_code = Mage::app()->getStore()->getCurrentCurrencyCode();
@@ -275,14 +279,14 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 			$base->log( 'Unacceptable currency code (' . $currency_code . ').' );
 			Mage::throwException( Mage::helper( 'cgp' )->__( 'Selected currency code "%s" is not compatible with CardGate', $currency_code ) );
 		}
-		
+
 		return $this;
 	}
 
 	/**
 	 * Change order status
 	 *
-	 * @param Mage_Sales_Model_Order $order        	
+	 * @param Mage_Sales_Model_Order $order
 	 * @return void
 	 */
 	protected function initiateTransactionStatus ( $order ) {
@@ -303,23 +307,40 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 	 * @return array
 	 */
 	public function getCheckoutFormFields () {
-		$base = Mage::getSingleton( 'cgp/base' );
 		$extra_data = $_SESSION['cgp_formdata']['payment']['cgp'];
-		
 		$order = $this->getOrder();
-		
+
+		try {
+			$order->getPayment()->setAdditionalInformation('cardgate_redirected',time());
+			$order->save();
+		} catch (Exception $e) {
+			/* ignore */
+		}
+
+		return $this->getRegisterFields($order, $extra_data);
+	}
+
+	/**
+	 *
+	 * @param Mage_Sales_Model_Order $order
+	 * @param array $extra_data
+	 * @return string[]|number[]|unknown[]|NULL[]|mixed[]
+	 */
+	public function getRegisterFields($order, $extra_data = array()) {
+
+		$base = Mage::getSingleton( 'cgp/base' );
 		if ( ! $this->getConfigData( 'orderemail_at_payment' ) ) {
 			$order->sendNewOrderEmail();
 			$order->setEmailSent( true );
 		}
 		$customer = $order->getBillingAddress();
 		$ship_customer = $order->getShippingAddress();
-		
+
 		$s_arr = array();
 		$s_arr['language'] = $this->getConfigData( 'lang' );
-		
+
 		$cartitems = array();
-		
+
 		foreach ( $order->getAllItems() as $itemId => $item ) {
 			if ( $item->getQtyToInvoice() > 0 ) {
 				$aAdditionalCartData = array();
@@ -339,12 +360,12 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				), $aAdditionalCartData );
 			}
 		}
-		
+
 		if ( $order->getDiscountAmount() < 0 ) {
 			$amount = $order->getDiscountAmount();
 			$applyAfter = Mage::helper( 'tax' )->applyTaxAfterDiscount( $order->getStoreId() );
 			$priceIncludesTax = Mage::helper( 'tax' )->priceIncludesTax( $order->getStoreId() );
-			
+
 			if ( $applyAfter == true && $priceIncludesTax == false ) {
 				// With this setting active the discount will not have the
 				// correct value.
@@ -365,7 +386,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 					$amount -= $newAmount;
 				}
 			}
-			
+
 			$cartitems[] = array(
 				'quantity' => '1',
 				'sku' => 'cg-discount',
@@ -377,12 +398,11 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				'type' => 4
 			);
 		}
-		
+
 		$tax_info = $order->getFullTaxInfo();
-		
 		// add shipping
 		if ( $order->getShippingAmount() > 0 ) {
-			
+
 			$flags = 8;
 			if ( ! isset( $tax_info[0]['percent'] ) ) {
 				$tax_rate = 0;
@@ -402,10 +422,10 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				'type' => 2
 			);
 		}
-		
+
 		// add invoice fee
 		if ( $order->getPayment()->getAdditionalInformation( 'invoice_fee' ) > 0 ) {
-			
+
 			$tax_rate = $order->getPayment()->getAdditionalInformation( 'invoice_fee_rate' );
 			$cartitems[] = array(
 				'quantity' => '1',
@@ -418,7 +438,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				'type' => 5
 			);
 		}
-		
+
 		// add Magestore affiliateplus discount
 		if ( ! is_null( $order->getAffiliateplusDiscount() ) && $order->getAffiliateplusDiscount() != 0 ) {
 			$cartitems[] = array(
@@ -432,7 +452,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				'type' => 4
 			);
 		}
-		
+
 		// add ET Payment Extra Charge
 		if ( ! is_null( $order->getEtPaymentExtraCharge() ) && $order->getEtPaymentExtraCharge() != 0 ) {
 			$cartitems[] = array(
@@ -446,12 +466,26 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				'type' => 5
 			);
 		}
-		
+
 		// failsafe
 		$cartpricetotal = $cartvattotal = 0;
 		foreach ( $cartitems as $cartitem ) {
 			$cartpricetotal += ceil( ( $cartitem['price'] * $cartitem['quantity'] ) * 100 );
 			$cartvattotal += ceil( ( $cartitem['vat_amount'] * $cartitem['quantity'] ) * 100 );
+		}
+		//$cartvattotal-=1;
+		if ( $cartvattotal != ceil( $order->getTaxAmount() * 100 ) ) {
+			$cartitems[] = array(
+				'quantity' => '1',
+				'sku' => 'cg-vatcorrection',
+				'name' => 'VAT Correction',
+				'price' => sprintf( '%01.2f', ( ceil( $order->getTaxAmount() * 100 ) / 100 ) - ( $cartvattotal / 100 ) ),
+				'vat_amount' => sprintf( '%01.2f', ( ceil( $order->getTaxAmount() * 100 ) / 100 ) - ( $cartvattotal / 100 ) ),
+				'vat_inc' => 1,
+				'vat' => 100,
+				'type' => 7
+			);
+			$cartpricetotal += ceil( $order->getTaxAmount() * 100 ) - $cartvattotal;
 		}
 		if ( $cartpricetotal != ceil( $order->getGrandTotal() * 100 )) {
 			$iCorrectionAmount = ( ceil( $order->getGrandTotal() * 100 ) / 100 ) - ( $cartpricetotal / 100 );
@@ -466,19 +500,9 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				'type' => ( $iCorrectionAmount > 0 ) ? 1 : 4
 			);
 		}
-		if ( $cartvattotal != ceil( $order->getTaxAmount() * 100 ) ) {
-			$cartitems[] = array(
-				'quantity' => '1',
-				'sku' => 'cg-vatcorrection',
-				'name' => 'VAT Correction',
-				'vat_amount' => sprintf( '%01.2f', ( ceil( $order->getTaxAmount() * 100 ) / 100 ) - ( $cartvattotal / 100 ) ),
-				'vat_inc' => 1,
-				'type' => 7
-			);
-		}
-		
+
 		$s_arr['cartitems'] = serialize( $cartitems );
-		
+
 		switch ( $this->_model ) {
 			// CreditCards
 			case 'visa':
@@ -490,38 +514,38 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 			case 'vpay':
 				$s_arr['option'] = 'creditcard';
 				break;
-			
+
 			// DIRECTebanking, Sofortbanking
 			case 'sofortbanking':
 				$s_arr['option'] = 'directebanking';
 				break;
-			
+
 			// iDEAL
 			case 'ideal':
 				$s_arr['option'] = 'ideal';
 				$s_arr['suboption'] = $extra_data['ideal_issuer_id'];
 				break;
-			
-			// Giropay
-			case 'giropay':
-				$s_arr['option'] = 'giropay';
-				break;
-			
+
 			// Mister Cash
 			case 'mistercash':
 				$s_arr['option'] = 'bancontact';
 				break;
-			
+
+			/*// Giropay
+			case 'giropay':
+				$s_arr['option'] = 'giropay';
+				break;
+
 			// PayPal
 			case 'paypal':
 				$s_arr['option'] = 'paypal';
 				break;
-			
+
 			// Webmoney
 			case 'webmoney':
 				$s_arr['option'] = 'webmoney';
-				break;
-			
+				break;*/
+
 			// Klarna
 			case 'klarna':
 				$s_arr['option'] = 'klarna';
@@ -533,13 +557,13 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				}
 				$s_arr['language'] = $extra_data['klarna-language'];
 				$s_arr['account'] = 0;
-				
+
 				break;
-			
+
 			// Klarna
 			case 'klarnaaccount':
 				$s_arr['option'] = 'klarna';
-				
+
 				if ( isset( $extra_data['klarna-account-personal-number'] ) ) {
 					$s_arr['dob'] = $extra_data['klarna-account-personal-number'];
 				} else {
@@ -548,47 +572,57 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				}
 				$s_arr['language'] = $extra_data['klarna-account-language'];
 				$s_arr['account'] = 1;
-				
+
 				break;
-			
-			// Banktransfer
+
+			/*// Banktransfer
 			case 'banktransfer':
 				$s_arr['option'] = 'banktransfer';
 				break;
-			
+
 			// Directdebit
 			case 'directdebit':
 				$s_arr['option'] = 'directdebit';
 				break;
-			
+
 			// Przelewy24
 			case 'przelewy24':
 				$s_arr['option'] = 'przelewy24';
 				break;
-			
+
 			// Afterpay
 			case 'afterpay':
 				$s_arr['option'] = 'afterpay';
 				break;
-			
+
 			// Bitcoin
 			case 'bitcoin':
 				$s_arr['option'] = 'bitcoin';
 				break;
-			
+
+			// POS (offline PM)
+			case 'pos':
+				$s_arr['option'] = 'pos';
+				break;
+
+			// paysafecard
+			case 'paysafecard':
+				$s_arr['option'] = 'paysafecard';
+				break;*/
+
 			// Default
 			default:
-				$s_arr['option'] = '';
+				$s_arr['option'] = $this->_model;
 				$s_arr['suboption'] = '';
 				break;
 		}
-		
+
 		// Add new state
 		$this->initiateTransactionStatus( $order );
-		
+
 		$s_arr['siteid'] = $this->getConfigData( 'site_id' );
 		$s_arr['ref'] = $order->getIncrementId();
-		
+
 		$s_arr['first_name'] = $customer->getFirstname();
 		$s_arr['last_name'] = $customer->getLastname();
 		$s_arr['company_name'] = $customer->getCompany();
@@ -599,7 +633,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 		$s_arr['postal_code'] = $customer->getPostcode();
 		$s_arr['phone_number'] = $customer->getTelephone();
 		$s_arr['state'] = $customer->getRegionCode();
-		
+
 		// CURO protocol... because..
 		$s_arr['shipto_firstname'] = $ship_customer->getFirstname();
 		$s_arr['shipto_lastname'] = $ship_customer->getLastname();
@@ -611,7 +645,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 		$s_arr['shipto_zipcode'] = $ship_customer->getPostcode();
 		$s_arr['shipto_phone'] = $ship_customer->getTelephone();
 		$s_arr['shipto_state'] = $ship_customer->getRegionCode();
-		
+
 		if ( $this->getConfigData( 'use_backoffice_urls' ) == false ) {
 			$s_arr['return_url'] = Mage::getUrl( 'cgp/standard/success/', array(
 				'_secure' => true
@@ -620,30 +654,30 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				'_secure' => true
 			) );
 		}
-		
+
 		$s_arr['shop_version'] = 'Magento ' . Mage::getVersion();
 		$s_arr['plugin_name'] = 'Cardgate_Cgp';
 		$s_arr['plugin_version'] = $this->getPluginVersion();
-		$s_arr['extra'] = $this->getCheckout()->getCardgateQuoteId();
-		
+		$s_arr['extra'] = $order->getQuoteId();
+
 		if ( $base->isTest() ) {
-			$s_arr['test'] = '1';
+			//$s_arr['test'] = '1';
 			$hash_prefix = 'TEST';
 		} else {
 			$hash_prefix = '';
 		}
-		
+
 		$s_arr['amount'] = sprintf( '%.0f', ceil( $order->getGrandTotal() * 100 ) );
 		$s_arr['currency'] = $order->getOrderCurrencyCode();
 		$s_arr['description'] = str_replace( '%id%', $order->getIncrementId(), $this->getConfigData( 'order_description' ) );
 		$s_arr['hash'] = md5( $hash_prefix . $this->getConfigData( 'site_id' ) . $s_arr['amount'] . $s_arr['ref'] . $this->getConfigData( 'hash_key' ) );
-		
+
 		// Logging
 		$base->log( 'Initiating a new transaction' );
 		$base->log( 'Sending customer to Card Gate Plus with values:' );
 		$base->log( 'URL = ' . $this->getGatewayUrl() );
 		$base->log( $s_arr );
-		
+
 		$locale = Mage::app()->getLocale()->getLocaleCode();
 		return $s_arr;
 	}
@@ -656,8 +690,8 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 	 * Do RESTful API call
 	 * @param string $entrypoint
 	 * @param string $calldata
-     * @return Zend_Http_Response
-     * @throws Zend_Http_Client_Exception
+	 * @return Zend_Http_Response
+	 * @throws Zend_Http_Client_Exception
 	 */
 	public function doApiCall( $entrypoint, $calldata = array() ) {
 		$config = array(
@@ -665,19 +699,19 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 			'timeout' => 30,
 			'verifypeer' => 0
 		);
-	
+
 		$data = array();
 		$data['shop_version'] = 'Magento ' . Mage::getVersion();
 		$data['plugin_name'] = 'Cardgate_Cgp';
 		$data['plugin_version'] = $this->getPluginVersion();
 		$data = array_merge( $data, $calldata );
-		
+
 		$APIid = $this->getConfigData( 'api_id' );
 		$APIkey = $this->getConfigData( 'api_key' );
 		$headers = array(
 			'Accept: application/json'
 		);
-		
+
 		$client = new Varien_Http_Client();
 		$client->setUri( $this->getAPIUrl() . $entrypoint )
 			->setAuth( $APIid, $APIkey, Varien_Http_Client::AUTH_BASIC )
@@ -691,21 +725,44 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 		$result = json_decode( $responsebody, true );
 		return array( 'code'=>$responsecode, 'result'=>$result, 'body'=>$responsebody );
 	}
-	
-	/**
-	 * Refund a capture transaction
-	 *
-	 * @param Mage_Sales_Model_Order_Payment $payment        	
-	 * @param float $amount        	
-	 */
-	public function refund ( Varien_Object $payment, $amount ) {
-		
+
+	public function register ( $order, $emptyMethod = false ) {
 		/**
 		 *
 		 * @var Cardgate_Cgp_Model_Base $base
 		 */
 		$base = Mage::getModel( 'cgp/base' );
-		
+		$registerdata = $this->getRegisterFields($order);
+		$registerdata['ip'] = '0.0.0.0'; // unknown at this point
+
+		$apiresult = array();
+		try {
+			if ( $emptyMethod ) {
+				unset ( $registerdata['option'] );
+			}
+			$apiresult = $this->doApiCall( ( $registerdata['option'] ? $registerdata['option'].'/' : '' ) . 'payment', $registerdata );
+			$result = $apiresult['result'];
+		} catch ( Exception $e ) {
+			$base->log( 'Refund failed! ' . $e->getCode() . '/' . $e->getMessage() );
+			Mage::throwException( Mage::helper( 'cgp' )->__( 'CardGate register for order %s failed. Reason: %s', $order->getId(), $e->getCode() . '/' . $e->getMessage() ) );
+		}
+		return $apiresult;
+	}
+
+	/**
+	 * Refund a capture transaction
+	 *
+	 * @param Mage_Sales_Model_Order_Payment $payment
+	 * @param float $amount
+	 */
+	public function refund ( Varien_Object $payment, $amount ) {
+
+		/**
+		 *
+		 * @var Cardgate_Cgp_Model_Base $base
+		 */
+		$base = Mage::getModel( 'cgp/base' );
+
 		$trxid = $this->_getParentTransactionId( $payment );
 		$base->log( "CG REFUND " . $trxid . " -- " . $amount );
 		if ( $trxid ) {
@@ -713,38 +770,38 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				$base->log( "Transaction {$trxid} is locked, can't refund now. Aborting." );
 				Mage::throwException( "Transaction {$trxid} is locked, can't refund now. Aborting." );
 			}
-			
+
 			/**
 			 *
 			 * @var Mage_Sales_Model_Order $order
 			 */
 			$order = $payment->getOrder();
 			$currencycode = $order->getOrderCurrencyCode();
-			
+
 			if ( ! in_array( $currencycode, $this->_supportedCurrencies ) ) {
 				$base->log( 'Unacceptable currency code (' . $currencycode . ').' );
 				Mage::throwException( Mage::helper( 'cgp' )->__( 'Selected currency code "%s" is not compatible with CardGate', $currencycode ) );
 			}
-			
+
 			$apiresult = array();
 			try {
-				$apiresult = $this->doApiCall('refund', array( 
+				$apiresult = $this->doApiCall('refund', array(
 					'refund' => array(
 						'site_id' => $this->getConfigData( 'site_id' ),
 						'transaction_id' => $trxid,
 						'amount' => sprintf( '%.0f', ceil( $amount * 100 ) ),
 						'currency' => $currencycode
 					)
-					
+
 				));
 				$result = $apiresult['result'];
 			} catch ( Exception $e ) {
 				$base->log( 'Refund failed! ' . $e->getCode() . '/' . $e->getMessage() );
 				Mage::throwException( Mage::helper( 'cgp' )->__( 'CardGate refund for Transaction %s failed. Reason: %s', $trxid, $e->getCode() . '/' . $e->getMessage() ) );
 			}
-			
+
 			$base->log( 'CardGate refund request for ' . $trxid . ' amount: ' . $currencycode . ' ' . $amount . '. Response: ' . $apiresult['body'] );
-			
+
 			if ( $apiresult['code'] < 200 || $apiresult['code'] > 299 || ! is_array( $result ) || isset( $result['error'] ) ) {
 				$base->log( 'CardGate refund for Transaction ' . $trxid . ' declined. Got: ' . $apiresult['body'] );
 				Mage::throwException( Mage::helper( 'cgp' )->__( 'CardGate refund for Transaction %s declined. Reason: %s', $trxid, ( isset( $result['error']['message'] ) ? $result['error']['message'] : "({$apiresult['code']}) {$apiresult['body']}" ) ) );
@@ -756,43 +813,43 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				$refundpayment = Mage::getModel( 'sales/order_payment' )->setMethod( $this->_code )
 					->setTransactionId( $result['refund']['transaction_id'] )
 					->setIsTransactionClosed( true );
-				
+
 				$order->setPayment( $refundpayment );
 				$refundpayment->addTransaction( Mage_Sales_Model_Order_Payment_Transaction::TYPE_REFUND, null, false, "CardGate refund {$result['refund']['transaction_id']}" );
-				
+
 				$order->save();
-				
+
 				if ( $result['refund']['action'] == 'redirect' ) {
 					$order->addStatusHistoryComment( Mage::helper( 'cgp' )->__( "Action required for Cardgate refund <b>Order # %s</b> <b>(transaction # %s)</b>. <a href='%s' target='_blank'>Click here</a>", $order->getIncrementId(), $result['refund']['transaction_id'], $result['refund']['url'] ) );
-					
+
 					$storeId = $order->getStore()->getId();
 					$ident = Mage::getStoreConfig( 'cgp/settings/notification_email' );
 					$sender_email = Mage::getStoreConfig( 'trans_email/ident_general/email', $storeId );
 					$sender_name = Mage::getStoreConfig( 'trans_email/ident_general/name', $storeId );
 					$recipient_email = Mage::getStoreConfig( 'trans_email/ident_' . $ident . '/email', $storeId );
 					$recipient_name = Mage::getStoreConfig( 'trans_email/ident_' . $ident . '/name', $storeId );
-					
+
 					$mail = new Zend_Mail();
 					$mail->setFrom( $sender_email, $sender_name );
 					$mail->addTo( $recipient_email, $recipient_name );
 					$mail->setSubject( Mage::helper( "cgp" )->__( 'Cardgate refund action required' ) );
-					$mail->setBodyText( 
+					$mail->setBodyText(
 							Mage::helper( "cgp" )->__( 'Action required for Cardgate refund Order # %s (transaction # %s). See URL %s', $order->getIncrementId(), $result['refund']['transaction_id'], $result['refund']['url'] ) );
-					$mail->setBodyHtml( 
-							Mage::helper( "cgp" )->__( 
-									"Action required for Cardgate refund <b>Order # %s</b> <b>(transaction # %s)</b>. <a href='%s' target='_blank'>Click here</a>", 
+					$mail->setBodyHtml(
+							Mage::helper( "cgp" )->__(
+									"Action required for Cardgate refund <b>Order # %s</b> <b>(transaction # %s)</b>. <a href='%s' target='_blank'>Click here</a>",
 									$order->getIncrementId(), $result['refund']['transaction_id'], $result['refund']['url'] ) );
 					$mail->send();
-					
+
 					Mage::getSingleton( 'core/session' )->addWarning( Mage::helper( 'cgp' )->__( "Action required for Cardgate refund <b>Order # %s</b> <b>(transaction # %s)</b>. <a href='%s' target='_blank'>Click here</a>", $order->getIncrementId(), $result['refund']['transaction_id'], $result['refund']['url'] ) );
 				}
-			
+
 			}
 		} else {
 			$base->log( 'CardGate refund failed because transaction could not be found' );
 			Mage::throwException( sprintf( Mage::helper( 'cgp' )->__( 'CardGate refund failed because transaction could not be found' ) ) );
 		}
-		
+
 		return $this;
 	}
 

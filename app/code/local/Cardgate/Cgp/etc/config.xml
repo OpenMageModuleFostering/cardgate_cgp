@@ -8,18 +8,32 @@
  */
 -->
 <config>
-    <modules>
-        <Cardgate_Cgp>
-            <version>1.2.0</version>
-        </Cardgate_Cgp>
-    </modules>
-    
-    <global>
-        <blocks>
-            <cgp>
-                <class>Cardgate_Cgp_Block</class>
-            </cgp>
-            <adminhtml>
+	<modules>
+		<Cardgate_Cgp>
+			<version>1.2.1</version>
+		</Cardgate_Cgp>
+	</modules>
+
+	<global>
+		<template>
+			<email>
+				<cgp_email_paymentlink_template translate="label" module="cgp">
+					<label>Send Paymentlink</label>
+					<file>cgp/paymentlink.html</file>
+					<type>html</type>
+				</cgp_email_paymentlink_template>
+				<cgp_email_paymentlink_guest_template translate="label" module="cgp">
+					<label>Send Paymentlink for Guest</label>
+					<file>cgp/paymentlink_guest.html</file>
+					<type>html</type>
+				</cgp_email_paymentlink_guest_template>
+			</email>
+		</template>
+		<blocks>
+			<cgp>
+				<class>Cardgate_Cgp_Block</class>
+			</cgp>
+			<adminhtml>
 				<rewrite>
 					<sales_order_totals>Cardgate_Cgp_Block_Paymentfee_Adminhtml_Sales_Order_Totals</sales_order_totals>
 					<sales_order_invoice_totals>Cardgate_Cgp_Block_Paymentfee_Adminhtml_Sales_Order_Totals</sales_order_invoice_totals>
@@ -33,435 +47,523 @@
 					<order_totals>Cardgate_Cgp_Block_Paymentfee_Order_Totals_Fee</order_totals>
 				</rewrite>
 			</sales>
-        </blocks>
-        <helpers>
-            <cgp>
-                <class>Cardgate_Cgp_Helper</class>
-            </cgp>
-        </helpers>
-        <models>
-            <cgp>
-                <class>Cardgate_Cgp_Model</class>
-            </cgp>
-            <sales>
-                <rewrite>Mage_Sales_Model_Order_Payment
-                    <quote>Cardgate_Cgp_Model_Paymentfee_Quote_Quote</quote>
-                    <order_invoice_total_tax>Cardgate_Cgp_Model_Paymentfee_Invoice_Tax</order_invoice_total_tax>
-                </rewrite>
-            </sales>
-        </models>
-        <sales>
-            <quote>
-                <totals>
-                    <cgp_fee>
-                        <class>cgp/paymentfee_quote_total</class>
-                        <after>subtotal,discount,shipping</after>
-                        <before>tax,grand_total</before>
-                        <renderer>cgp/paymentfee_checkout_fee</renderer>
-                    </cgp_fee>
-                    <cgp_tax>
-                        <class>cgp/paymentfee_quote_taxTotal</class>
-                        <after>subtotal,discount,shipping,tax</after>
-                        <before>grand_total</before>
-                    </cgp_tax>
-                </totals>
-            </quote>
+		</blocks>
+		<helpers>
+			<cgp>
+				<class>Cardgate_Cgp_Helper</class>
+			</cgp>
+		</helpers>
+		
+		<models>
+			<cgp>
+				<class>Cardgate_Cgp_Model</class>
+			</cgp>
+			<sales>
+				<rewrite>Mage_Sales_Model_Order_Payment
+					<quote>Cardgate_Cgp_Model_Paymentfee_Quote_Quote</quote>
+					<order_invoice_total_tax>Cardgate_Cgp_Model_Paymentfee_Invoice_Tax</order_invoice_total_tax>
+				</rewrite>
+			</sales>
+		</models>
+		
+		<sales>
+			<quote>
+				<totals>
+					<cgp_fee>
+						<class>cgp/paymentfee_quote_total</class>
+						<after>subtotal,discount,shipping</after>
+						<before>tax,grand_total</before>
+						<renderer>cgp/paymentfee_checkout_fee</renderer>
+					</cgp_fee>
+					<cgp_tax>
+						<class>cgp/paymentfee_quote_taxTotal</class>
+						<after>subtotal,discount,shipping,tax</after>
+						<before>grand_total</before>
+					</cgp_tax>
+				</totals>
+			</quote>
 			<order_creditmemo>
-                <totals>
+				<totals>
 					<cgp_total>
 						<class>cgp/paymentfee_creditmemo_total</class>
 						<after>subtotal,discount,shipping,tax</after>
 						<before>cost_total,grand_total</before>
-                    </cgp_total>
-                </totals>
-            </order_creditmemo>
+					</cgp_total>
+				</totals>
+			</order_creditmemo>
 
 
 			<order_invoice>
-                <totals>
-                    <cgp_total>
-                        <class>cgp/paymentfee_invoice_total</class>
-                    </cgp_total>
-                </totals>
-            </order_invoice>
+				<totals>
+					<cgp_total>
+						<class>cgp/paymentfee_invoice_total</class>
+					</cgp_total>
+				</totals>
+			</order_invoice>
 		</sales>
-		
+
 		<pdf>
-            <totals>
-                <invoice_fee translate="title">
-                    <title>Invoice fee</title>
-                    <source_field>cgp</source_field>
-                    <font_size>7</font_size>
-                    <display_zero>1</display_zero>
-                    <sort_order>550</sort_order>
-                    <model>cgp/paymentfee_invoice_pdf_total</model>
-                </invoice_fee>
-            </totals>
-        </pdf>
-        <resources>
-            <cgp_setup>
-                <setup>
-                    <module>Cardgate_Cgp</module>
-                </setup>
-                <connection>
-                    <use>core_setup</use>
-                </connection>
-            </cgp_setup>
-            <cgp_read>
-                <connection>
-                    <use>core_read</use>
-                </connection>
-            </cgp_read>
-            <cgp_write>
-                <connection>
-                    <use>core_write</use>
-                </connection>
-            </cgp_write>
-        </resources>
-        <events>
-            <sales_quote_collect_totals_after>
-                <observers>
-                    <cgp>
-                        <type>singleton</type>
-                        <class>cgp/observer</class>
-                        <method>salesQuoteCollectTotalsAfter</method>
-                    </cgp>
-                </observers>
-            </sales_quote_collect_totals_after>
-			
+			<totals>
+				<invoice_fee translate="title">
+					<title>Invoice fee</title>
+					<source_field>cgp</source_field>
+					<font_size>7</font_size>
+					<display_zero>1</display_zero>
+					<sort_order>550</sort_order>
+					<model>cgp/paymentfee_invoice_pdf_total</model>
+				</invoice_fee>
+			</totals>
+		</pdf>
+		<resources>
+			<cgp_setup>
+				<setup>
+					<module>Cardgate_Cgp</module>
+				</setup>
+				<connection>
+					<use>core_setup</use>
+				</connection>
+			</cgp_setup>
+			<cgp_read>
+				<connection>
+					<use>core_read</use>
+				</connection>
+			</cgp_read>
+			<cgp_write>
+				<connection>
+					<use>core_write</use>
+				</connection>
+			</cgp_write>
+		</resources>
+		<events>
+			<sales_quote_collect_totals_after>
+				<observers>
+					<cgp>
+						<type>singleton</type>
+						<class>cgp/observer</class>
+						<method>salesQuoteCollectTotalsAfter</method>
+					</cgp>
+				</observers>
+			</sales_quote_collect_totals_after>
+
 			<sales_order_payment_place_end>
-                <observers>
-                    <cgp>
-                        <type>singleton</type>
-                        <class>cgp/observer</class>
-                        <method>salesOrderPaymentPlaceEnd</method>
-                    </cgp>
-                </observers>
-            </sales_order_payment_place_end>
+				<observers>
+					<cgp>
+						<type>singleton</type>
+						<class>cgp/observer</class>
+						<method>salesOrderPaymentPlaceEnd</method>
+					</cgp>
+				</observers>
+			</sales_order_payment_place_end>
 			<!--
 			<sales_order_load_after>
-                <observers>
-                    <cgp>
-                        <type>singleton</type>
-                        <class>cgp/observer</class>
-                        <method>salesOrderLoadAfter</method>
-                    </cgp>
-                </observers>
-            </sales_order_load_after>-->
-        </events>
-    </global>
-    
-    <adminhtml>
+				<observers>
+					<cgp>
+						<type>singleton</type>
+						<class>cgp/observer</class>
+						<method>salesOrderLoadAfter</method>
+					</cgp>
+				</observers>
+			</sales_order_load_after>-->
+		</events>
+	</global>
+
+	<adminhtml>
 		<events>
-        	<create_order_session_quote_initialized>
-        		<observers>
-                    <cgp>
-                        <type>singleton</type>
-                        <class>cgp/observer</class>
-                        <method>initFromOrderSessionQuoteInitialized</method>
-                    </cgp>
-                </observers>
-        	</create_order_session_quote_initialized>
-        </events>
+			 <sales_quote_collect_totals_after>
+				<observers>
+					<cgp>
+						<type>singleton</type>
+						<class>cgp/observer</class>
+						<method>salesQuoteCollectTotalsAfter</method>
+					</cgp>
+				</observers>
+			</sales_quote_collect_totals_after>
 
-    <acl>
-        <resources>
-            <admin>
-                <children>
-                    <system>
-                        <children>
-                            <config>
-                                <children>
-                                    <cgp>
-                                        <title>CardGate Settings</title>
-                                    </cgp>
-                                </children>
-                            </config>
-                        </children>
-                    </system>
-                </children>
-            </admin>
-        </resources>
-    </acl>
+			<sales_order_payment_place_end>
+				<observers>
+					<cgp>
+						<type>singleton</type>
+						<class>cgp/observer</class>
+						<method>salesOrderPaymentPlaceEnd</method>
+					</cgp>
+				</observers>
+			</sales_order_payment_place_end>
+			
+			<create_order_session_quote_initialized>
+				<observers>
+					<cgp>
+						<type>singleton</type>
+						<class>cgp/observer</class>
+						<method>initFromOrderSessionQuoteInitialized</method>
+					</cgp>
+				</observers>
+			</create_order_session_quote_initialized>
+			
+			<checkout_submit_all_after>
+				<observers>
+					<cgp>
+						<type>singleton</type>
+						<class>cgp/observer</class>
+						<method>adminhtmlCheckoutSubmitAllAfter</method>
+					</cgp>
+				</observers>
+			</checkout_submit_all_after>
+		</events>
 
-        <translate>
-            <modules>
-                <Cardgate_Cgp>
-                    <files>
-                        <default>Cardgate_Cgp.csv</default>
-                    </files>
-                </Cardgate_Cgp>
-            </modules>
-        </translate>
-        <layout>
-            <updates>
-                <cgp>
-                    <file>cardgate_cgp.xml</file>
-                </cgp>
-            </updates>
-        </layout>      
-        <acl>
-            <resources>
-                <admin>
-                    <children>
-                        <system>
-                            <children>
-                                <config>
-                                    <children>
-                                        <cgp>
-                                            <title>CardGate+ Settings</title>
-                                        </cgp>
-                                    </children>
-                                </config>
-                            </children>
-                        </system>
-                    </children>
-                </admin>
-            </resources>
-        </acl>
-    </adminhtml>
-    
-    <frontend>
-        <routers>
-            <cgp>
-                <use>standard</use>
-                <args>
-                    <module>Cardgate_Cgp</module>
-                    <frontName>cgp</frontName>
-                </args>
-            </cgp>
-        </routers>        
-        <translate>
-            <modules>
-                <Cardgate_Cgp>
-                    <files>
-                        <default>Cardgate_Cgp.csv</default>
-                    </files>
-                </Cardgate_Cgp>
-            </modules>
-        </translate>
-    </frontend>
+		<acl>
+			<resources>
+				<admin>
+					<children>
+						<system>
+							<children>
+								<config>
+									<children>
+										<cgp>
+											<title>CardGate Settings</title>
+										</cgp>
+									</children>
+								</config>
+							</children>
+						</system>
+					</children>
+				</admin>
+			</resources>
+		</acl>
 
-    <default>
-        <payment>
-            <cgp_visa>
-                <active>1</active>
-                <model>cgp/gateway_visa</model>
-                <title>CGP Visa</title>
-            </cgp_visa>
-            <cgp_mastercard>
-                <active>1</active>
-                <model>cgp/gateway_mastercard</model>
-                <title>CGP MasterCard</title>
-            </cgp_mastercard>
-            <cgp_americanexpress>
-                <active>1</active>
-                <model>cgp/gateway_americanexpress</model>
-                <title>CGP AmericanExpress</title>
-            </cgp_americanexpress>
-            <cgp_maestro>
-                <active>1</active>
-                <model>cgp/gateway_maestro</model>
-                <title>CGP Maestro</title>
-            </cgp_maestro>
-            <cgp_cartebleue>
-                <active>1</active>
-                <model>cgp/gateway_cartebleue</model>
-                <title>CGP CarteBleue</title>
-            </cgp_cartebleue>
-            <cgp_cartebancaire>
-                <active>1</active>
-                <model>cgp/gateway_cartebancaire</model>
-                <title>CGP CarteBancaire</title>
-            </cgp_cartebancaire>
-            <cgp_vpay>
-                <active>1</active>
-                <model>cgp/gateway_vpay</model>
-                <title>CGP V-Pay</title>
-            </cgp_vpay>            
-            <cgp_sofortbanking>
-                <active>1</active>
-                <model>cgp/gateway_sofortbanking</model>
-                <title>CGP SofortBanking</title>
-            </cgp_sofortbanking>            
-            <cgp_ideal>
-                <active>1</active>
-                <model>cgp/gateway_ideal</model>
-                <title>CGP iDEAL</title>
-            </cgp_ideal>
-            <cgp_mistercash>
-                <active>1</active>
-                <model>cgp/gateway_mistercash</model>
-                <title>CGP MisterCash</title>
-            </cgp_mistercash>
-            <cgp_paypal>
-                <active>1</active>
-                <model>cgp/gateway_paypal</model>
-                <title>CGP PayPal</title>
-            </cgp_paypal>
-            <cgp_webmoney>
-                <active>1</active>
-                <model>cgp/gateway_webmoney</model>
-                <title>CGP Webmoney</title>
-            </cgp_webmoney>
-            <cgp_klarna>
-                <active>1</active>
-                <model>cgp/gateway_klarna</model>
-                <title>CGP KlarnaInvoice</title>
-            </cgp_klarna>
-            <cgp_klarnaaccount>
-                <active>1</active>
-                <model>cgp/gateway_klarnaaccount</model>
-                <title>CGP KlarnaAccount</title>
-            </cgp_klarnaaccount>
-            <cgp_giropay>
-                <active>1</active>
-                <model>cgp/gateway_giropay</model>
-                <title>CGP Giropay</title>
-            </cgp_giropay>
-            <cgp_banktransfer>
-                <active>1</active>
-                <model>cgp/gateway_banktransfer</model>
-                <title>CGP Bank Transfer</title>
-            </cgp_banktransfer>
-            <cgp_directdebit>
-                <active>1</active>
-                <model>cgp/gateway_directdebit</model>
-                <title>CGP Direct Debit</title>
-            </cgp_directdebit>
-            <cgp_przelewy24>
-                <active>1</active>
-                <model>cgp/gateway_przelewy24</model>
-                <title>CGP Przelewy24</title>
-            </cgp_przelewy24>
-            <cgp_afterpay>
-                <active>1</active>
-                <model>cgp/gateway_afterpay</model>
-                <title>CGP Afterpay</title>
-            </cgp_afterpay>
-            <cgp_bitcoin>
-                <active>1</active>
-                <model>cgp/gateway_bitcoin</model>
-                <title>CGP Bitcoin</title>
-            </cgp_bitcoin>
-        </payment>
-        
-        <cgp>
-            <settings>
-                <active>0</active>
-                <lang>nl</lang>                
-                <initialized_status>pending</initialized_status>                
-                <complete_status>processing</complete_status>
-                <waitconf_status>pending_payment</waitconf_status>
-                <failed_status>canceled</failed_status>
-                <fraud_status>fraud</fraud_status>
-                <use_backoffice_urls>0</use_backoffice_urls>
-                <orderemail_at_payment>1</orderemail_at_payment>
-                <autocreate_invoice>1</autocreate_invoice>
-                <mail_invoice>1</mail_invoice>
-                <notification_email>general</notification_email>
-                <event_invoicing_failed>0</event_invoicing_failed>
-                <order_description>Order %id%</order_description>
-                <test_mode>test</test_mode>
-                <debug>1</debug>
-            </settings>
-            <cgp_visa translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_visa</model>
-                <title>Visa</title>
-            </cgp_visa>
-            <cgp_mastercard translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_mastercard</model>
-                <title>MasterCard</title>
-            </cgp_mastercard>
-            <cgp_americanexpress translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_americanexpress</model>
-                <title>AmericanExpress</title>
-            </cgp_americanexpress>
-            <cgp_maestro translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_maestro</model>
-                <title>Maestro</title>
-            </cgp_maestro>
-            <cgp_cartebleue translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_cartebleue</model>
-                <title>Carte Bleue</title>
-            </cgp_cartebleue>
-            <cgp_cartebancaire translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_cartebancaire</model>
-                <title>Carte Bancaire</title>
-            </cgp_cartebancaire>
-            <cgp_vpay translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_vpay</model>
-                <title>V-Pay</title>
-            </cgp_vpay>
-            <cgp_sofortbanking translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_sofortbanking</model>
-                <title>SofortBanking</title>
-            </cgp_sofortbanking>            
-            <cgp_ideal translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_ideal</model>
-                <title>iDEAL</title>
-            </cgp_ideal>
-            <cgp_mistercash translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_mistercash</model>
-                <title>MisterCash</title>
-            </cgp_mistercash>
-            <cgp_paypal translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_paypal</model>
-                <title>PayPal</title>
-            </cgp_paypal>
-            <cgp_webmoney translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_webmoney</model>
-                <title>Webmoney</title>
-            </cgp_webmoney>
-            <cgp_klarna translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_klarna</model>
-                <title>Klarna Invoice</title>
-            </cgp_klarna>
-            <cgp_klarnaaccount translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_klarnaaccount</model>
-                <title>Klarna Account</title>
-            </cgp_klarnaaccount>
-            <cgp_giropay translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_giropay</model>
-                <title>Giropay</title>
-            </cgp_giropay>
-            <cgp_banktransfer translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_banktransfer</model>
-                <title>Bank Transfer</title>
-            </cgp_banktransfer>
-            <cgp_directdebit translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_directdebit</model>
-                <title>Direct Debit</title>
-            </cgp_directdebit>
-            <cgp_przelewy24 translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_przelewy24</model>
-                <title>Przelewy24</title>
-            </cgp_przelewy24>
-            <cgp_afterpay translate="title" module="cgp">
-                <active>0</active>
-                <model>cgp/gateway_afterpay</model>
-                <title>Afterpay</title>
-            </cgp_afterpay>
-        </cgp>            
-    </default>
+		<translate>
+			<modules>
+				<Cardgate_Cgp>
+					<files>
+						<default>Cardgate_Cgp.csv</default>
+					</files>
+				</Cardgate_Cgp>
+			</modules>
+		</translate>
+
+		<layout>
+			<updates>
+				<cgp>
+					<file>cardgate.xml</file>
+				</cgp>
+			</updates>
+		</layout>
+
+		<acl>
+			<resources>
+				<admin>
+					<children>
+						<system>
+							<children>
+								<config>
+									<children>
+										<cgp>
+											<title>CardGate+ Settings</title>
+										</cgp>
+									</children>
+								</config>
+							</children>
+						</system>
+					</children>
+				</admin>
+			</resources>
+		</acl>
+	</adminhtml>
+
+	<admin>
+		<routers>
+			<adminhtml>
+				<args>
+					<modules>
+						<Cardgate_Cgp before="Mage_Adminhtml">Cardgate_Cgp_Adminhtml</Cardgate_Cgp>
+					</modules>
+				</args>
+			</adminhtml>
+		</routers>
+	</admin>
+
+	<frontend>
+		<routers>
+			<cgp>
+				<use>standard</use>
+				<args>
+					<module>Cardgate_Cgp</module>
+					<frontName>cgp</frontName>
+				</args>
+			</cgp>
+		</routers>
+		<translate>
+			<modules>
+				<Cardgate_Cgp>
+					<files>
+						<default>Cardgate_Cgp.csv</default>
+					</files>
+				</Cardgate_Cgp>
+			</modules>
+		</translate>
+	</frontend>
+
+	<default>
+		<payment>
+			<cgp_visa>
+				<active>1</active>
+				<model>cgp/gateway_visa</model>
+				<title>CGP Visa</title>
+			</cgp_visa>
+			<cgp_mastercard>
+				<active>1</active>
+				<model>cgp/gateway_mastercard</model>
+				<title>CGP MasterCard</title>
+			</cgp_mastercard>
+			<cgp_americanexpress>
+				<active>1</active>
+				<model>cgp/gateway_americanexpress</model>
+				<title>CGP AmericanExpress</title>
+			</cgp_americanexpress>
+			<cgp_maestro>
+				<active>1</active>
+				<model>cgp/gateway_maestro</model>
+				<title>CGP Maestro</title>
+			</cgp_maestro>
+			<cgp_cartebleue>
+				<active>1</active>
+				<model>cgp/gateway_cartebleue</model>
+				<title>CGP CarteBleue</title>
+			</cgp_cartebleue>
+			<cgp_cartebancaire>
+				<active>1</active>
+				<model>cgp/gateway_cartebancaire</model>
+				<title>CGP CarteBancaire</title>
+			</cgp_cartebancaire>
+			<cgp_vpay>
+				<active>1</active>
+				<model>cgp/gateway_vpay</model>
+				<title>CGP V-Pay</title>
+			</cgp_vpay>
+			<cgp_sofortbanking>
+				<active>1</active>
+				<model>cgp/gateway_sofortbanking</model>
+				<title>CGP SofortBanking</title>
+			</cgp_sofortbanking>
+			<cgp_ideal>
+				<active>1</active>
+				<model>cgp/gateway_ideal</model>
+				<title>CGP iDEAL</title>
+			</cgp_ideal>
+			<cgp_mistercash>
+				<active>1</active>
+				<model>cgp/gateway_mistercash</model>
+				<title>CGP Bancontact</title>
+			</cgp_mistercash>
+			<cgp_paypal>
+				<active>1</active>
+				<model>cgp/gateway_paypal</model>
+				<title>CGP PayPal</title>
+			</cgp_paypal>
+			<cgp_webmoney>
+				<active>1</active>
+				<model>cgp/gateway_webmoney</model>
+				<title>CGP Webmoney</title>
+			</cgp_webmoney>
+			<cgp_klarna>
+				<active>1</active>
+				<model>cgp/gateway_klarna</model>
+				<title>CGP KlarnaInvoice</title>
+			</cgp_klarna>
+			<cgp_klarnaaccount>
+				<active>1</active>
+				<model>cgp/gateway_klarnaaccount</model>
+				<title>CGP KlarnaAccount</title>
+			</cgp_klarnaaccount>
+			<cgp_giropay>
+				<active>1</active>
+				<model>cgp/gateway_giropay</model>
+				<title>CGP Giropay</title>
+			</cgp_giropay>
+			<cgp_banktransfer>
+				<active>1</active>
+				<model>cgp/gateway_banktransfer</model>
+				<title>CGP Bank Transfer</title>
+			</cgp_banktransfer>
+			<cgp_directdebit>
+				<active>1</active>
+				<model>cgp/gateway_directdebit</model>
+				<title>CGP Direct Debit</title>
+			</cgp_directdebit>
+			<cgp_przelewy24>
+				<active>1</active>
+				<model>cgp/gateway_przelewy24</model>
+				<title>CGP Przelewy24</title>
+			</cgp_przelewy24>
+			<cgp_afterpay>
+				<active>1</active>
+				<model>cgp/gateway_afterpay</model>
+				<title>CGP Afterpay</title>
+			</cgp_afterpay>
+			<cgp_bitcoin>
+				<active>1</active>
+				<model>cgp/gateway_bitcoin</model>
+				<title>CGP Bitcoin</title>
+			</cgp_bitcoin>
+			<cgp_pos>
+				<active>1</active>
+				<model>cgp/gateway_pos</model>
+				<title>CGP POS</title>
+			</cgp_pos>
+			<cgp_paysafecard>
+				<active>1</active>
+				<model>cgp/gateway_paysafecard</model>
+				<title>CGP Paysafecard</title>
+			</cgp_paysafecard>
+			<cgp_idealqr>
+				<active>1</active>
+				<model>cgp/gateway_idealqr</model>
+				<title>CGP iDEAL QR</title>
+			</cgp_idealqr>
+		</payment>
+
+		<cgp>
+			<settings>
+				<active>0</active>
+				<lang>nl</lang>
+				<initialized_status>pending</initialized_status>
+				<complete_status>processing</complete_status>
+				<waitconf_status>pending_payment</waitconf_status>
+				<failed_status>canceled</failed_status>
+				<fraud_status>fraud</fraud_status>
+				<use_backoffice_urls>0</use_backoffice_urls>
+				<orderemail_at_payment>1</orderemail_at_payment>
+				<autocreate_invoice>1</autocreate_invoice>
+				<mail_invoice>1</mail_invoice>
+				<notification_email>general</notification_email>
+				<event_invoicing_failed>0</event_invoicing_failed>
+				<order_description>Order %id%</order_description>
+				<test_mode>test</test_mode>
+				<debug>1</debug>
+			</settings>
+			<email_paymentlink>
+				<enabled>1</enabled>
+				<template>cgp_email_paymentlink_template</template>
+				<guest_template>cgp_email_paymentlink_guest_template</guest_template>
+				<identity>sales</identity>
+				<copy_method>bcc</copy_method>
+			</email_paymentlink>
+			<cgp_visa translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_visa</model>
+				<title>Visa</title>
+			</cgp_visa>
+			<cgp_mastercard translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_mastercard</model>
+				<title>MasterCard</title>
+			</cgp_mastercard>
+			<cgp_americanexpress translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_americanexpress</model>
+				<title>AmericanExpress</title>
+			</cgp_americanexpress>
+			<cgp_maestro translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_maestro</model>
+				<title>Maestro</title>
+			</cgp_maestro>
+			<cgp_cartebleue translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_cartebleue</model>
+				<title>Carte Bleue</title>
+			</cgp_cartebleue>
+			<cgp_cartebancaire translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_cartebancaire</model>
+				<title>Carte Bancaire</title>
+			</cgp_cartebancaire>
+			<cgp_vpay translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_vpay</model>
+				<title>V-Pay</title>
+			</cgp_vpay>
+			<cgp_sofortbanking translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_sofortbanking</model>
+				<title>SofortBanking</title>
+			</cgp_sofortbanking>
+			<cgp_ideal translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_ideal</model>
+				<title>iDEAL</title>
+			</cgp_ideal>
+			<cgp_mistercash translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_mistercash</model>
+				<title>Bancontact/Mistercash</title>
+			</cgp_mistercash>
+			<cgp_paypal translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_paypal</model>
+				<title>PayPal</title>
+			</cgp_paypal>
+			<cgp_webmoney translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_webmoney</model>
+				<title>Webmoney</title>
+			</cgp_webmoney>
+			<cgp_klarna translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_klarna</model>
+				<title>Klarna Invoice</title>
+			</cgp_klarna>
+			<cgp_klarnaaccount translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_klarnaaccount</model>
+				<title>Klarna Account</title>
+			</cgp_klarnaaccount>
+			<cgp_giropay translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_giropay</model>
+				<title>Giropay</title>
+			</cgp_giropay>
+			<cgp_banktransfer translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_banktransfer</model>
+				<title>Bank Transfer</title>
+			</cgp_banktransfer>
+			<cgp_directdebit translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_directdebit</model>
+				<title>Direct Debit</title>
+			</cgp_directdebit>
+			<cgp_przelewy24 translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_przelewy24</model>
+				<title>Przelewy24</title>
+			</cgp_przelewy24>
+			<cgp_afterpay translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_afterpay</model>
+				<title>Afterpay</title>
+			</cgp_afterpay>
+			<cgp_bitcoin translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_bitcoin</model>
+				<title>Bitcoin</title>
+			</cgp_bitcoin>
+			<cgp_pos translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_pos</model>
+				<title>POS</title>
+			</cgp_pos>
+			<cgp_paysafecard translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_paysafecard</model>
+				<title>paysafecard</title>
+			</cgp_paysafecard>
+			<cgp_idealqr translate="title" module="cgp">
+				<active>0</active>
+				<model>cgp/gateway_idealqr</model>
+				<title>iDEAL QR via je mobiel</title>
+			</cgp_idealqr>
+		</cgp>
+	</default>
 
 
 </config>
