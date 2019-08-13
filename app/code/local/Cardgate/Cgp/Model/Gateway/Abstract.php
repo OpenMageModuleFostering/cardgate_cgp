@@ -207,7 +207,9 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 		}
 		
 		$configSettings = Mage::getStoreConfig( $this->_module . '/settings', $storeId );
+		if ( ! is_array( $configSettings ) ) $configSettings = array();
 		$configGateway = Mage::getStoreConfig( $this->_module . '/' . $this->_code, $storeId );
+		if ( ! is_array( $configGateway ) ) $configGateway = array();
 		$config = array_merge( $configSettings, $configGateway );
 		
 		return @$config[$field];
