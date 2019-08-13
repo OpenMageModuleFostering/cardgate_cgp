@@ -10,6 +10,9 @@
 <config>
     <acl>
         <resources>
+            <all>
+                <title>Allow Everything</title>
+            </all>
             <admin>
                 <children>
                     <system>
@@ -23,6 +26,22 @@
                             </config>
                         </children>
                     </system>
+                    <cardgate translate="title" module="cgp">
+                        <title>CardGate</title>
+                        <sort_order>71</sort_order>
+                        <children>
+                            <resendpayment translate="title" module="cgp">
+                                <title>Resend Paymentlink (same method)</title>
+                                <sort_order>10</sort_order>
+                                <action>adminhtml/cardgate/resendpayment</action>
+                            </resendpayment>
+                            <resendcheckout translate="title" module="cgp">
+                                <title>Resend Paymentlink (all methods)</title>
+                                <sort_order>20</sort_order>
+                                <action>adminhtml/cardgate/resendcheckout</action>
+                            </resendcheckout>
+                        </children>
+                    </cardgate>
                 </children>
             </admin>
         </resources>

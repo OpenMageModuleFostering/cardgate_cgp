@@ -8,6 +8,12 @@
  */
 class Cardgate_Cgp_Adminhtml_CardgateController extends Mage_Adminhtml_Controller_Action {
 
+	protected function _isAllowed()	{
+		return Mage::getSingleton('admin/session')->isAllowed('cardgate/resendpayment') ||
+			Mage::getSingleton('admin/session')->isAllowed('cardgate/resendcheckout');
+	}
+
+
 	public function indexAction () {
 		$this->loadLayout();
 
@@ -30,6 +36,12 @@ class Cardgate_Cgp_Adminhtml_CardgateController extends Mage_Adminhtml_Controlle
 	}
 
 	public function resendPaymentAction () {
+
+		if ( !Mage::getSingleton('admin/session')->isAllowed('cardgate/resendpayment') ) {
+			$this->_forward('denied');
+			return $this;
+		}
+
 		$this->loadLayout();
 		$this->_title( $this->__( 'CardGate' ) )
 			->_title( $this->__( 'Send payment link' ) );
@@ -74,6 +86,12 @@ class Cardgate_Cgp_Adminhtml_CardgateController extends Mage_Adminhtml_Controlle
 	}
 
 	public function resendCheckoutAction () {
+
+		if ( !Mage::getSingleton('admin/session')->isAllowed('cardgate/resendcheckout') ) {
+			$this->_forward('denied');
+			return $this;
+		}
+
 		$this->loadLayout();
 		$this->_title( $this->__( 'CardGate' ) )
 			->_title( $this->__( 'Send payment link' ) );

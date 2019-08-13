@@ -29,17 +29,21 @@ class Cardgate_Cgp_Block_Adminhtml_Paymentlink_Resend extends Mage_Core_Block_Te
 			}
 			$cardgateMethod = ( substr($payment->getMethod(), 0, 3) == 'cgp' );
 			$this->addText( Mage::helper('cgp')->__('Send payment link for order #%s to email \'%s\'', $order->getId(), $order->getCustomerEmail() ));
-			if ( $cardgateMethod ) {
+
+			if ( $cardgateMethod && Mage::getSingleton('admin/session')->isAllowed('cardgate/resendpayment') ) {
 				$this->addText( '<br/><br/>' );
 				$fixedText = Mage::helper('cgp')->__("Send direct payment link using method '%s'", $title);
 				$fixedUrl = Mage::helper('adminhtml')->getUrl('*/cardgate/resendpayment', array('orderid' => $order->getId()) );
 				$this->addText( '<button class="scalable" type="button" title="'.$fixedText.'" onclick="setLocation(\''.$fixedUrl.'\');">'.$fixedText.'</button>');
 			}
-			$flexText = Mage::helper('cgp')->__('Send direct payment link allowing all available paymentmethods');
-			$flexUrl = Mage::helper('adminhtml')->getUrl('*/cardgate/resendcheckout', array('orderid' => $order->getId()) );
-			$this->addText( '<br/><br/><button class="scalable" type="button" title="'.$flexText.'" onclick="setLocation(\''.$flexUrl.'\');">'.$flexText.'</button>' );
 
-			$this->addText( '<br/><br/>' . Mage::helper('cgp')->__('Please notice the order is already finalized and additional transactioncosts don\'t change when other paymentmethods are applied.') );
+			if ( Mage::getSingleton('admin/session')->isAllowed('cardgate/resendcheckout') ) {
+				$flexText = Mage::helper('cgp')->__('Send direct payment link allowing all available paymentmethods');
+				$flexUrl = Mage::helper('adminhtml')->getUrl('*/cardgate/resendcheckout', array('orderid' => $order->getId()) );
+				$this->addText( '<br/><br/><button class="scalable" type="button" title="'.$flexText.'" onclick="setLocation(\''.$flexUrl.'\');">'.$flexText.'</button>' );
+				$this->addText( '<br/><br/>' . Mage::helper('cgp')->__('Please notice the order is already finalized and additional transactioncosts don\'t change when other paymentmethods are applied.') );
+			}
+
 		}
 
 }
