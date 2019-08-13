@@ -318,9 +318,9 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 				$newState = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
 				$newStatus = $statusPending;
 				$statusMessage = Mage::helper( 'cgp' )->__( 'Transaction pending: Waiting for customer action.' );
-				$order->sendNewOrderEmail();
-				$order->addStatusToHistory( $order->getStatus(), $statusMessage, true );
-				$order->save();
+ 				$order->sendNewOrderEmail();
+ 				$order->setIsCustomerNotified( true );
+ 				$order->save();
 				break;
 			case "701":
 				// Direct debit pending status
@@ -328,9 +328,9 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 				$newState = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
 				$newStatus = $statusWaitconf;
 				$statusMessage = Mage::helper( 'cgp' )->__( 'Transaction pending: Waiting for confirmation.' );
-				$order->sendNewOrderEmail();
-				$order->addStatusToHistory( $order->getStatus(), $statusMessage, true );
-				$order->save();
+ 				$order->sendNewOrderEmail();
+ 				$order->setIsCustomerNotified( true );
+ 				$order->save();
 				break;
 			default:
 				$msg = 'Status not recognised: ' . $this->getCallbackData( 'status' );
@@ -338,16 +338,16 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 				die( $msg );
 		}
 		
-		// Adiitional logging for direct-debit
+		// Additional logging for direct-debit
 		if ( $this->getCallbackData( 'recipient_name' ) && $this->getCallbackData( 'recipient_iban' )
 		    && $this->getCallbackData( 'recipient_bic' ) && $this->getCallbackData( 'recipient_reference' )
-		) {
-		    $statusMessage.= "<br/>\n" . Mage::helper( 'cgp' )->__( 'Additional information' )." : "
-		        . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary' ) ." : ". $this->getCallbackData( 'recipient_name' )
-		        . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary IBAN' ) ." : ". $this->getCallbackData( 'recipient_iban' )
-		        . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary BIC' ) ." : ". $this->getCallbackData( 'recipient_bic' )
-		        . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Reference' ) ." : ". $this->getCallbackData( 'recipient_reference' );
-		}
+	    ) {
+	        $statusMessage.= "<br/>\n" . Mage::helper( 'cgp' )->__( 'Additional information' )." : "
+	            . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary' ) ." : ". $this->getCallbackData( 'recipient_name' )
+	            . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary IBAN' ) ." : ". $this->getCallbackData( 'recipient_iban' )
+	            . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary BIC' ) ." : ". $this->getCallbackData( 'recipient_bic' )
+	            . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Reference' ) ." : ". $this->getCallbackData( 'recipient_reference' );
+	    }
 		
 		// Update only certain states
 		$canUpdate = false;
@@ -439,8 +439,12 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 			}
 			
 			// Set order state and status
-			$order->setState( $newState, $newStatus, $statusMessage );
-			$this->log( "Changing state to '$newState' with message '$statusMessage' for order ID: $id." );
+			if ( $newState == $order->getState() ) {
+			    $order->addStatusToHistory( $newStatus, $statusMessage );
+			} else {
+			    $order->setState( $newState, $newStatus, $statusMessage );
+			}
+			$this->log( "Changing state to '$newState' from '".$order->getState()."' with message '$statusMessage' for order ID: $id." );
 			
 			// Send new order e-mail
 			if ( $complete && ! $canceled && ! $order->getEmailSent() ) {
