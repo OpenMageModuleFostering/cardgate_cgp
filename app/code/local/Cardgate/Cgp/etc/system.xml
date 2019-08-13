@@ -291,7 +291,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -380,7 +380,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -469,7 +469,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -558,7 +558,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -647,7 +647,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -736,7 +736,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -825,7 +825,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -914,7 +914,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1003,7 +1003,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1092,7 +1092,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1181,7 +1181,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1270,7 +1270,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1368,7 +1368,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1465,7 +1465,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1554,7 +1554,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1651,7 +1651,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1740,7 +1740,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1829,7 +1829,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -1918,7 +1918,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>
@@ -2007,7 +2007,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                            <comment>Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.</comment>
                         </payment_fee>
 						<payment_fee_tax translate="label">
                             <label>Payment fee tax class</label>

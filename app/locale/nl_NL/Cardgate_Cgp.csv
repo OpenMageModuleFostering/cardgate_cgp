@@ -74,7 +74,7 @@
 "Your payment is being evaluated by the bank. Please do not attempt to pay again, until your payment is either confirmed or denied by the bank.","Uw betaling wordt beoordeeld door de bank. Probeer niet nogmaals te betalen, totdat de betaling goed- of afgekeurd is door de bank."
 "Your payment has failed. If you wish, you can try using a different payment method.","Uw betaling is niet geslaagd. Indien gewenst, kunt u een andere betaalmethode proberen."
 "Payment fee","Betaaltoeslag"
-"Payment fee amount (eg 0.35 or 1)","Betaaltoeslag bedrag"
+"Payment fee amount. A positive amount will be used as a fixed amount, a negative amount  as percentage. Using both is also possible by separation with a semicolon. Eg. 0.30;-1.2 results in 30 cents + 1.2% of the order amount.","Betaaltoeslag bedrag. Een positief getal wordt als vast bedrag gebruikt, een negatief getal als percentage. Beide opgeven is ook mogelijk door deze te scheiden met een punt-comma. Voorbeeld: 0.30;-1.2 resulteert in 30 cent + 1.2% van het orderbedrag."
 "Payment fee tax class","Betaaltoeslag BTW tarief"
 "Choose the fee's tax class","Kies een BTW tarief voor de toeslag"
 "Including/Excluding Tax","Inclusief/Exclusief BTW"

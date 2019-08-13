@@ -17,6 +17,7 @@ class Cardgate_Cgp_Helper_Paymentfee extends Mage_Payment_Helper_Data
 	 */
 	public function getPaymentFeeArray ( $paymentcode, $quote )
 	{
+	    
 		$inctax = Mage::getStoreConfig( 'cgp/' . $paymentcode . '/payment_fee_inc_ex' );
 		$paymentfee = Mage::getStoreConfig( 'cgp/' . $paymentcode . '/payment_fee' );
 		$paymentfee_taxclass = Mage::getStoreConfig( 'cgp/' . $paymentcode . '/payment_fee_tax' );
@@ -26,18 +27,13 @@ class Cardgate_Cgp_Helper_Paymentfee extends Mage_Payment_Helper_Data
 			return;
 		}
 		
-		if ( Mage::getSingleton( 'core/session' )->getCgpTotal() > 0 ) {
-			if ( $quote->getGrandTotal() > 0 &&
-					 Mage::getSingleton( 'core/session' )->getCgpTotal() != $quote->getGrandTotal() ) {
-				Mage::getSingleton( 'core/session' )->setCgpTotal( $quote->getGrandTotal() );
-				$order_total = Mage::getSingleton( 'core/session' )->getCgpTotal();
-			}
-			$order_total = Mage::getSingleton( 'core/session' )->getCgpTotal();
-		} else {
-			Mage::getSingleton( 'core/session' )->setCgpTotal( $quote->getGrandTotal() );
-			$order_total = $quote->getGrandTotal();
+		$order_total = 0;
+		foreach ( $quote->getAllAddresses() as $address ) {
+		    // YYY : getDiscountAmount is negative..
+		    $order_total+= ( $address->getSubtotalInclTax() + $address->getDiscountAmount() );
 		}
 		
+		$paymentfee = str_replace(",", ".", $paymentfee);
 		if ( strpos( $paymentfee, ';' ) > 0 ) {
 			$fees = explode( ";", $paymentfee );
 			$charge = 0;
@@ -50,13 +46,11 @@ class Cardgate_Cgp_Helper_Paymentfee extends Mage_Payment_Helper_Data
 				$charge += $fees[1];
 			else
 				$charge += $order_total * ( ( $fees[1] * - 1 ) / 100.0 );
-		} else 
-			if ( $paymentfee > 0 ) {
-				$charge = $paymentfee;
-			} else 
-				if ( $paymentfee < 0 ) {
-					$charge = $order_total * ( ( $paymentfee * - 1 ) / 100.0 );
-				}
+		} elseif ( $paymentfee > 0 ) {
+			$charge = $paymentfee;
+		} elseif ( $paymentfee < 0 ) {
+			$charge = $order_total * ( ( $paymentfee * - 1 ) / 100.0 );
+		}
 		
 		$address = $quote->getShippingAddress();
 		$taxClassId = $quote->getCustomerTaxClassId();
