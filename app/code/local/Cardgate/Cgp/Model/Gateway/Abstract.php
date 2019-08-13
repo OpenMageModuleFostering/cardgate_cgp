@@ -326,7 +326,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 					'sku' => $item->getSku(),
 					'name' => $item->getName(),
 					'price' => sprintf( '%01.2f', ( float ) $item->getPriceInclTax() ),
-					'vat_amount' => sprintf( '%01.2f', ( float ) $item->getTaxAmount() ),
+					'vat_amount' => sprintf( '%01.2f', ( float ) $item->getTaxAmount() / $item->getQtyToInvoice() ),
 					'vat' => ( float ) $item->getData( 'tax_percent' ),
 					'vat_inc' => 1,
 					'type' => 1
@@ -444,8 +444,8 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 		// failsafe
 		$cartpricetotal = $cartvattotal = 0;
 		foreach ( $cartitems as $cartitem ) {
-			$cartpricetotal += ceil( $cartitem['price'] * 100 );
-			$cartvattotal += ceil( $cartitem['vat_amount'] * 100 );
+			$cartpricetotal += ceil( ( $cartitem['price'] * $cartitem['quantity'] ) * 100 );
+			$cartvattotal += ceil( ( $cartitem['vat_amount'] * $cartitem['quantity'] ) * 100 );
 		}
 		if ( $cartpricetotal != ceil( $order->getGrandTotal() * 100 ) || $cartvattotal != ceil( $order->getTaxAmount() * 100 ) ) {
 			$cartitems[] = array(
