@@ -1,26 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
- * Magento CardGatePlus payment extension
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
+ * Magento CardGate payment extension
  *
  * @category    Mage
  * @package     Cardgate_Cgp
- * @author      Paul Saparov, <support@cardgate.com>
- * @copyright   Copyright (c) 2011 CardGatePlus B.V. (http://www.cardgateplus.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 -->
 <config>
     <sections>        
         <cgp module="cgp">
-            <label>CardGatePlus</label>
+            <label>CardGate</label>
             <class>cardgate-section</class>
             <header_css>cardgate-header</header_css>
             <tab>sales</tab>
@@ -32,8 +22,8 @@
             <groups>
                 <settings translate="comment">
                     <label>Settings</label>
-                    <comment><![CDATA[<strong>Note:</strong> Don't forget to set-up in the <a href="https://merchants.cardgateplus.com/" target="_blank">Merchant Backoffice</a> a Control URL to "http://www.yourdomain.com/cgp/standard/control/".]]></comment>
-                    <sort_order>100</sort_order>
+                    <comment><![CDATA[<strong>Note:</strong> Don't forget to set-up in the <a href='https://my.cardgate.com/' target='_blank'>Merchant Backoffice</a> a Control URL to 'http://www.yourdomain.com/cgp/standard/control/'.]]></comment>
+                    <sort_order>1</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -41,7 +31,7 @@
                         <test_mode translate="label comment">
                             <label>Test/Live Mode</label>
                             <frontend_type>select</frontend_type>
-                            <comment><![CDATA[Switching between test and live mode. If you don't have an account <a href='http://www.cardgate.com/' target='_blank'>sign up here.</a>]]></comment>
+                            <comment><![CDATA[Switching between test and live mode. If you don't have an account <a href='http://www.cardgate.com/' target='_blank'>sign up here</a>.]]></comment>
                             <source_model>cgp/adminhtml_system_config_source_modes</source_model>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
@@ -51,7 +41,7 @@
                         <site_id translate="label comment">
                             <label>Site ID</label>
                             <frontend_type>text</frontend_type>
-                            <comment><![CDATA[Fill in you site ID number. You can find your site ID number at <a href="https://merchants.cardgateplus.com/" target="_blank">merchant back-office</a>]]></comment>
+                            <comment><![CDATA[Fill in you site ID number. You can find your site ID number at <a href='https://my.cardgate.com/' target='_blank'>merchant back-office</a>.]]></comment>
                             <sort_order>30</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -60,7 +50,7 @@
                         <hash_key translate="label comment">
                             <label>Hash Key</label>
                             <frontend_type>text</frontend_type>
-                            <comment><![CDATA[Fill in you secret hash key for the site. You can create your hash key code at <a href="https://merchants.cardgateplus.com/" target="_blank">merchant back-office</a>]]></comment>
+                            <comment><![CDATA[Fill in you secret hash key for the site. You can create your hash key code at <a href='https://my.cardgate.com/' target='_blank'>merchant back-office</a>.]]></comment>
                             <sort_order>40</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -69,13 +59,23 @@
                         <use_backoffice_urls translate="label comment">
                             <label>Use back-office URLs</label>
                             <frontend_type>select</frontend_type>
-                            <comment><![CDATA[Use the return URLs as filled in at <a href="https://merchants.cardgateplus.com/" target="_blank">merchant back-office</a> instead of the default plugin values.]]></comment>
+                            <comment><![CDATA[Use the return URLs as filled in at <a href='https://my.cardgate.com/' target='_blank'>merchant back-office</a> instead of the default plugin values.]]></comment>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>50</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </use_backoffice_urls>
+                        <orderemail_at_payment translate="label comment">
+                            <label>Send Order Email only at payment</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>Send Order Email only after payment completion.</comment>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </orderemail_at_payment>
                         <autocreate_invoice translate="label comment">
                             <label>Create invoice after payment</label>
                             <frontend_type>select</frontend_type>
@@ -259,6 +259,42 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </sort_order>
+                        <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_visa>
                 
@@ -312,6 +348,42 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_mastercard>
                 
@@ -365,6 +437,42 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_americanexpress>
 
@@ -418,117 +526,47 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_maestro>
                 
-                <cgp_vpay translate="label" module="cgp">
-                    <label>V-Pay</label>
-                    <sort_order>232</sort_order>
-                    <show_in_default>1</show_in_default>
-                    <show_in_website>1</show_in_website>
-                    <show_in_store>1</show_in_store>
-                    <fields>
-                        <active translate="label">
-                            <label>Enabled</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>1</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </active>
-                        <title translate="label">
-                            <label>Title</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>10</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </title>
-                        <allowspecific translate="label">
-                            <label>Payment from applicable countries</label>
-                            <frontend_type>allowspecific</frontend_type>
-                            <sort_order>20</sort_order>
-                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </allowspecific>
-                        <specificcountry translate="label">
-                            <label>Payment from Specific countries</label>
-                            <frontend_type>multiselect</frontend_type>
-                            <sort_order>30</sort_order>
-                            <source_model>adminhtml/system_config_source_country</source_model>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </specificcountry>
-                        <sort_order translate="label">
-                            <label>Sort order</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>100</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </sort_order>
-                    </fields>
-                </cgp_vpay>                
-                
-                <cgp_sofortbanking translate="label" module="cgp">
-                    <label>SofortBanking</label>
-                    <sort_order>235</sort_order>
-                    <show_in_default>1</show_in_default>
-                    <show_in_website>1</show_in_website>
-                    <show_in_store>1</show_in_store>
-                    <fields>
-                        <active translate="label">
-                            <label>Enabled</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>1</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </active>
-                        <title translate="label">
-                            <label>Title</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>10</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </title>
-                        <allowspecific translate="label">
-                            <label>Payment from applicable countries</label>
-                            <frontend_type>allowspecific</frontend_type>
-                            <sort_order>20</sort_order>
-                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </allowspecific>
-                        <specificcountry translate="label">
-                            <label>Payment from Specific countries</label>
-                            <frontend_type>multiselect</frontend_type>
-                            <sort_order>30</sort_order>
-                            <source_model>adminhtml/system_config_source_country</source_model>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </specificcountry>
-                        <sort_order translate="label">
-                            <label>Sort order</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>100</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </sort_order>                        
-                    </fields>
-                </cgp_sofortbanking>
-                            
-                <cgp_ideal translate="label" module="cgp">
-                    <label>iDEAL</label>
+                <cgp_cartebleue translate="label" module="cgp">
+                    <label>CarteBleue</label>
                     <sort_order>240</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -577,11 +615,47 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
-                </cgp_ideal>
-				
-                <cgp_mistercash translate="label" module="cgp">
-                    <label>MisterCash</label>
+                </cgp_cartebleue>
+                
+                <cgp_cartebancaire translate="label" module="cgp">
+                    <label>CarteBancaire</label>
                     <sort_order>250</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -629,12 +703,48 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </sort_order>                        
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
-                </cgp_mistercash>
+                </cgp_cartebancaire>
                 
-                <cgp_paypal translate="label" module="cgp">
-                    <label>PayPal</label>
+                <cgp_vpay translate="label" module="cgp">
+                    <label>V-Pay</label>
                     <sort_order>260</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -682,12 +792,48 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </sort_order>                        
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
-                </cgp_paypal>
-                    
-                <cgp_webmoney translate="label" module="cgp">
-                    <label>Webmoney</label>
+                </cgp_vpay>                
+                
+                <cgp_sofortbanking translate="label" module="cgp">
+                    <label>SofortBanking</label>
                     <sort_order>270</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
@@ -735,13 +881,405 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </sort_order>                        
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
+                    </fields>
+                </cgp_sofortbanking>
+                            
+                <cgp_ideal translate="label" module="cgp">
+                    <label>iDEAL</label>
+                    <sort_order>280</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <allowspecific translate="label">
+                            <label>Payment from applicable countries</label>
+                            <frontend_type>allowspecific</frontend_type>
+                            <sort_order>20</sort_order>
+                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </allowspecific>
+                        <specificcountry translate="label">
+                            <label>Payment from Specific countries</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>30</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </specificcountry>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
+                    </fields>
+                </cgp_ideal>
+				
+                <cgp_mistercash translate="label" module="cgp">
+                    <label>MisterCash</label>
+                    <sort_order>290</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <allowspecific translate="label">
+                            <label>Payment from applicable countries</label>
+                            <frontend_type>allowspecific</frontend_type>
+                            <sort_order>20</sort_order>
+                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </allowspecific>
+                        <specificcountry translate="label">
+                            <label>Payment from Specific countries</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>30</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </specificcountry>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
+                    </fields>
+                </cgp_mistercash>
+                
+                <cgp_paypal translate="label" module="cgp">
+                    <label>PayPal</label>
+                    <sort_order>300</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <allowspecific translate="label">
+                            <label>Payment from applicable countries</label>
+                            <frontend_type>allowspecific</frontend_type>
+                            <sort_order>20</sort_order>
+                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </allowspecific>
+                        <specificcountry translate="label">
+                            <label>Payment from Specific countries</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>30</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </specificcountry>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
+                    </fields>
+                </cgp_paypal>
+                    
+                <cgp_webmoney translate="label" module="cgp">
+                    <label>Webmoney</label>
+                    <sort_order>310</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <active translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </active>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </title>
+                        <allowspecific translate="label">
+                            <label>Payment from applicable countries</label>
+                            <frontend_type>allowspecific</frontend_type>
+                            <sort_order>20</sort_order>
+                            <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </allowspecific>
+                        <specificcountry translate="label">
+                            <label>Payment from Specific countries</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <sort_order>30</sort_order>
+                            <source_model>adminhtml/system_config_source_country</source_model>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </specificcountry>
+                        <sort_order translate="label">
+                            <label>Sort order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_webmoney>
                 
                 <cgp_klarna translate="label" module="cgp">
                     <label>Klarna Invoice</label>
-                    <sort_order>280</sort_order>
+                    <sort_order>320</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -771,14 +1309,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </klarna_eid>
-                        <klarna_invoice_fee_ex translate="label">
-                            <label>Invoice Fee (excl. VAT)</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>30</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </klarna_invoice_fee_ex>
+
                         <allowspecific translate="label">
                             <label>Payment from applicable countries</label>
                             <frontend_type>allowspecific</frontend_type>
@@ -804,13 +1335,49 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </sort_order>                        
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_klarna>
                 
                 <cgp_klarnaaccount translate="label" module="cgp">
                     <label>KlarnaAccount</label>
-                    <sort_order>290</sort_order>
+                    <sort_order>330</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -865,13 +1432,49 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </sort_order>                        
+                        </sort_order>
+                        <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_klarnaaccount>
 				
                 <cgp_giropay translate="label" module="cgp">
                     <label>Giropay</label>
-                    <sort_order>300</sort_order>
+                    <sort_order>340</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -918,12 +1521,49 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </sort_order>                        
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_giropay>
+                
                 <cgp_banktransfer translate="label" module="cgp">
                     <label>Bank Transfer</label>
-                    <sort_order>310</sort_order>
+                    <sort_order>350</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -938,17 +1578,25 @@
                             <show_in_store>1</show_in_store>
                         </active>
                         <title translate="label">
-                            <label>Title</label>
+                            <label>Titles</label>
                             <frontend_type>text</frontend_type>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </title>
+                        <instructions translate="label">
+                            <label>Instructions</label>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </instructions>
                         <allowspecific translate="label">
                             <label>Payment from applicable countries</label>
                             <frontend_type>allowspecific</frontend_type>
-                            <sort_order>20</sort_order>
+                            <sort_order>30</sort_order>
                             <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -957,7 +1605,7 @@
                         <specificcountry translate="label">
                             <label>Payment from Specific countries</label>
                             <frontend_type>multiselect</frontend_type>
-                            <sort_order>30</sort_order>
+                            <sort_order>40</sort_order>
                             <source_model>adminhtml/system_config_source_country</source_model>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -970,13 +1618,49 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </sort_order>                        
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_banktransfer>
                 
                 <cgp_directdebit translate="label" module="cgp">
                     <label>Direct Debit</label>
-                    <sort_order>320</sort_order>
+                    <sort_order>360</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -1023,12 +1707,49 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </sort_order>                        
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment>
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_directdebit>
+                
                 <cgp_przelewy24 translate="label" module="cgp">
                     <label>Przelewy24</label>
-                    <sort_order>320</sort_order>
+                    <sort_order>370</sort_order>
                     <show_in_default>1</show_in_default>
                     <show_in_website>1</show_in_website>
                     <show_in_store>1</show_in_store>
@@ -1075,10 +1796,48 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </sort_order>                        
+                        </sort_order>
+                                                <payment_fee translate="label">
+                            <label>Payment fee</label>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Payment fee amount (eg 0.35 or 1)</comment>
+                        </payment_fee>
+						<payment_fee_tax translate="label">
+                            <label>Payment fee tax class</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_shipping_taxclass</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_store>1</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <comment>Choose the fee's tax class</comment> 
+                        </payment_fee_tax>
+						<payment_fee_inc_ex translate="label">
+                            <label>Including/Excluding Tax</label>
+							<frontend_type>select</frontend_type>
+							<source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Yes = fee entered including tax / No = fee entered excluding tax</comment>
+                        </payment_fee_inc_ex>
+						<payment_fee_label translate="label,comment">
+                            <label>Payment fee label</label>
+                            <sort_order>140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Short description which is shown on orders/invoices</comment>
+                        </payment_fee_label>
                     </fields>
                 </cgp_przelewy24>     
+                
             </groups>
         </cgp>
+        
     </sections>
 </config>

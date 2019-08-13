@@ -1,26 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
- * Magento CardGatePlus payment extension
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
+ * Magento CardGate payment extension
  *
  * @category    Mage
  * @package     Cardgate_Cgp
- * @author      Paul Saparov, <support@cardgate.com>
- * @copyright   Copyright (c) 2011 CardGatePlus B.V. (http://www.cardgateplus.com)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 -->
 <config>
     <modules>
         <Cardgate_Cgp>
-            <version>1.0.29</version>
+            <version>1.1.0</version>
         </Cardgate_Cgp>
     </modules>
     
@@ -29,6 +19,20 @@
             <cgp>
                 <class>Cardgate_Cgp_Block</class>
             </cgp>
+            <adminhtml>
+				<rewrite>
+					<sales_order_totals>Cardgate_Cgp_Block_Paymentfee_Adminhtml_Sales_Order_Totals</sales_order_totals>
+					<sales_order_invoice_totals>Cardgate_Cgp_Block_Paymentfee_Adminhtml_Sales_Order_Totals</sales_order_invoice_totals>
+					<sales_order_creditmemo_totals>Cardgate_Cgp_Block_Paymentfee_Creditmemo_Totals</sales_order_creditmemo_totals>
+				</rewrite>
+			</adminhtml>
+			<sales>
+				<rewrite>
+					<order_creditmemo_totals>Cardgate_Cgp_Block_Paymentfee_Creditmemo_Totals</order_creditmemo_totals>
+					<order_invoice_totals>Cardgate_Cgp_Block_Paymentfee_Invoice_Totals_Fee</order_invoice_totals>
+					<order_totals>Cardgate_Cgp_Block_Paymentfee_Order_Totals_Fee</order_totals>
+				</rewrite>
+			</sales>
         </blocks>
         <helpers>
             <cgp>
@@ -39,7 +43,58 @@
             <cgp>
                 <class>Cardgate_Cgp_Model</class>
             </cgp>
-        </models>        
+            <sales>
+                <rewrite>Mage_Sales_Model_Order_Payment
+                    <quote>Cardgate_Cgp_Model_Paymentfee_Quote_Quote</quote>
+                    <order_invoice_total_tax>Cardgate_Cgp_Model_Paymentfee_Invoice_Tax</order_invoice_total_tax>
+                </rewrite>
+            </sales>
+        </models>
+        <sales>
+            <quote>
+                <totals>
+                    <cgp_fee>
+                        <class>cgp/paymentfee_quote_total</class>
+                        <after>subtotal,discount,shipping</after>
+                        <before>tax,grand_total</before>
+                        <renderer>cgp/paymentfee_checkout_fee</renderer>
+                    </cgp_fee>
+                    <cgp_tax>
+                        <class>cgp/paymentfee_quote_taxTotal</class>
+                        <after>subtotal,discount,shipping,tax</after>
+                        <before>grand_total</before>
+                    </cgp_tax>
+                </totals>
+            </quote>
+			<order_creditmemo>
+                <totals>
+					<cgp_total>
+                        <class>cgp/paymentfee_creditmemo_total</class>
+                        <after>subtotal,discount,shipping,tax</after>
+                        <before>cost_total,grand_total</before>
+                    </cgp_total>
+                </totals>
+            </order_creditmemo>
+			<order_invoice>
+                <totals>
+                    <cgp_total>
+                        <class>cgp/paymentfee_invoice_total</class>
+                    </cgp_total>
+                </totals>
+            </order_invoice>
+		</sales>
+		<pdf>
+            <totals>
+                <invoice_fee translate="title">
+                    <title>Invoice fee</title>
+                    <source_field>cgp</source_field>
+                    <font_size>7</font_size>
+                    <display_zero>1</display_zero>
+                    <sort_order>550</sort_order>
+                    <model>cgp/paymentfee_invoice_pdf_total</model>
+                </invoice_fee>
+            </totals>
+        </pdf>
         <resources>
             <cgp_setup>
                 <setup>
@@ -61,19 +116,59 @@
             </cgp_write>
         </resources>
         <events>
-            <sales_quote_collect_totals_before>
+            <sales_quote_collect_totals_after>
                 <observers>
                     <cgp>
                         <type>singleton</type>
                         <class>cgp/observer</class>
-                        <method>salesQuoteCollectTotalsBefore</method>
+                        <method>salesQuoteCollectTotalsAfter</method>
                     </cgp>
                 </observers>
-            </sales_quote_collect_totals_before>
+            </sales_quote_collect_totals_after>
+			
+			<sales_order_payment_place_end>
+                <observers>
+                    <cgp>
+                        <type>singleton</type>
+                        <class>cgp/observer</class>
+                        <method>salesOrderPaymentPlaceEnd</method>
+                    </cgp>
+                </observers>
+            </sales_order_payment_place_end>
+			<!--
+			<sales_order_load_after>
+                <observers>
+                    <cgp>
+                        <type>singleton</type>
+                        <class>cgp/observer</class>
+                        <method>salesOrderLoadAfter</method>
+                    </cgp>
+                </observers>
+            </sales_order_load_after>-->
         </events>
     </global>
     
     <adminhtml>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <cgp>
+                                        <title>CardGate Settings</title>
+                                    </cgp>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+
         <translate>
             <modules>
                 <Cardgate_Cgp>
@@ -154,6 +249,16 @@
                 <model>cgp/gateway_maestro</model>
                 <title>CGP Maestro</title>
             </cgp_maestro>
+            <cgp_cartebleue>
+                <active>1</active>
+                <model>cgp/gateway_cartebleue</model>
+                <title>CGP CarteBleue</title>
+            </cgp_cartebleue>
+            <cgp_cartebancaire>
+                <active>1</active>
+                <model>cgp/gateway_cartebancaire</model>
+                <title>CGP CarteBancaire</title>
+            </cgp_cartebancaire>
             <cgp_vpay>
                 <active>1</active>
                 <model>cgp/gateway_vpay</model>
@@ -225,6 +330,7 @@
                 <failed_status>canceled</failed_status>
                 <fraud_status>canceled</fraud_status>
                 <use_backoffice_urls>0</use_backoffice_urls>
+                <orderemail_at_payment>1</orderemail_at_payment>
                 <autocreate_invoice>1</autocreate_invoice>
                 <mail_invoice>1</mail_invoice>
                 <notification_email>general</notification_email>
@@ -253,6 +359,16 @@
                 <model>cgp/gateway_maestro</model>
                 <title>Maestro</title>
             </cgp_maestro>
+            <cgp_cartebleue translate="title" module="cgp">
+                <active>0</active>
+                <model>cgp/gateway_cartebleue</model>
+                <title>Carte Bleue</title>
+            </cgp_cartebleue>
+            <cgp_cartebancaire translate="title" module="cgp">
+                <active>0</active>
+                <model>cgp/gateway_cartebancaire</model>
+                <title>Carte Bancaire</title>
+            </cgp_cartebancaire>
             <cgp_vpay translate="title" module="cgp">
                 <active>0</active>
                 <model>cgp/gateway_vpay</model>
@@ -315,4 +431,6 @@
             </cgp_przelewy24>              
         </cgp>            
     </default>
+
+
 </config>

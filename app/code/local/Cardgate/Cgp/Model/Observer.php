@@ -1,69 +1,70 @@
 <?php
 
 /**
- * Event observer
+ * Magento CardGate payment extension
  *
- * PHP Version 5.3
- *
- * @category Payment
- * @package  Klarna_Module_Magento
- * @author   MS Dev <ms.modules@klarna.com>
- * @license  http://opensource.org/licenses/BSD-2-Clause BSD2
- * @link     http://integration.klarna.com
+ * @category Mage
+ * @package Cardgate_Cgp
  */
+class Cardgate_Cgp_Model_Observer extends Mage_Core_Model_Abstract
+{
 
-/**
- * Class to observe and handle Magento events
- *
- * @category Payment
- * @package  Klarna_Module_Magento
- * @author   MS Dev <ms.modules@klarna.com>
- * @license  http://opensource.org/licenses/BSD-2-Clause BSD2
- * @link     http://integration.klarna.com
- */
-class Cardgate_Cgp_Model_Observer extends Mage_Core_Model_Abstract {
+	public function salesQuoteCollectTotalsAfter ( Varien_Event_Observer $observer )
+	{
+		$quote = $observer->getEvent()->getQuote();
+		$quote->setInvoiceFee( 0 );
+		$quote->setBaseInvoiceFee( 0 );
+		$quote->setInvoiceFeeExcludedVat( 0 );
+		$quote->setBaseInvoiceFeeExcludedVat( 0 );
+		$quote->setInvoiceTaxAmount( 0 );
+		$quote->setBaseInvoiceTaxAmount( 0 );
+		$quote->setInvoiceFeeRate( 0 );
+		
+		foreach ( $quote->getAllAddresses() as $address ) {
+			$quote->setInvoiceFee( ( float ) $quote->getInvoiceFee() + $address->getInvoiceFee() );
+			$quote->setBaseInvoiceFee( ( float ) $quote->getBaseInvoiceFee() + $address->getBaseInvoiceFee() );
+			
+			$quoteFeeExclVat = $quote->getInvoiceFeeExcludedVat();
+			$addressFeeExclCat = $address->getInvoiceFeeExcludedVat();
+			$quote->setInvoiceFeeExcludedVat( ( float ) $quoteFeeExclVat + $addressFeeExclCat );
+			
+			$quoteBaseFeeExclVat = $quote->getBaseInvoiceFeeExcludedVat();
+			$addressBaseFeeExclVat = $address->getBaseInvoiceFeeExcludedVat();
+			$quote->setBaseInvoiceFeeExcludedVat( ( float ) $quoteBaseFeeExclVat + $addressBaseFeeExclVat );
+			
+			$quoteFeeTaxAmount = $quote->getInvoiceTaxAmount();
+			$addressFeeTaxAmount = $address->getInvoiceTaxAmount();
+			$quote->setInvoiceTaxAmount( ( float ) $quoteFeeTaxAmount + $addressFeeTaxAmount );
+			
+			$quoteBaseFeeTaxAmount = $quote->getBaseInvoiceTaxAmount();
+			$addressBaseFeeTaxAmount = $address->getBaseInvoiceTaxAmount();
+			$quote->setBaseInvoiceTaxAmount( ( float ) $quoteBaseFeeTaxAmount + $addressBaseFeeTaxAmount );
+			$quote->setInvoiceFeeRate( $address->getInvoiceFeeRate() );
+		}
+	}
 
-    public function salesQuoteCollectTotalsBefore( Varien_Event_Observer $observer ) {
-        /** @var Mage_Sales_Model_Quote $quote */
-        $quote = $observer->getQuote();
-
-        if ( $quote->getCustomer()->getId() ) {
-            $address = $quote->getCustomer()->getAddress();
-
-            $payment = $quote->getPayment();
-
-            try {
-                /**
-                 * Instead of relying on hasMethodInstance which would not always
-                 * work when i.e the order total is reloaded with coupon codes, we
-                 * try to get the instance directly instead.
-                 */
-                $p = $payment->getMethodInstance();
-            } catch ( Mage_Core_Exception $e ) {
-                return;
-            }
-            $paymentMethod = $p->getCode();
-
-            // For Klarna invoice, add Invoice fee
-            if ( $paymentMethod == 'cgp_klarna' ) {
-
-                $settings = Mage::getStoreConfig( 'cgp/cgp_klarna', $quote->getStoreId() );
-                $fee = floatval( $settings['klarna_invoice_fee_ex'] );
-
-                $store = Mage::app()->getStore( $quote->getStoreId() );
-                $carriers = Mage::getStoreConfig( 'carriers', $store );
-
-                foreach ( $carriers as $carrierCode => $carrierConfig ) {
-
-                    // F for fixed, P for percentage
-                    $store->setConfig( "carriers/{$carrierCode}/handling_type", 'F' );
-
-                    // 0 for no fee, otherwise fixed of percentage value
-                    $handlingFee = $store->getConfig( "carriers/{$carrierCode}/handling_fee" );
-                    $store->setConfig( "carriers/{$carrierCode}/handling_fee", $handlingFee + $fee );
-                }
-            }
-        }
-    }
-
+	public function salesOrderPaymentPlaceEnd ( Varien_Event_Observer $observer )
+	{
+		$payment = $observer->getPayment();
+		
+		if ( substr( $payment->getMethodInstance()->getCode(), 0, 3 ) != 'cgp' ) {
+			return;
+		}
+		
+		$info = $payment->getMethodInstance()->getInfoInstance();
+		$quote = Mage::getSingleton( 'checkout/session' )->getQuote();
+		if ( ! $quote->getId() ) {
+			$quote = Mage::getSingleton( 'adminhtml/session_quote' )->getQuote();
+		}
+		
+		$info->setAdditionalInformation( 'invoice_fee', $quote->getInvoiceFee() );
+		$info->setAdditionalInformation( 'base_invoice_fee', $quote->getBaseInvoiceFee() );
+		$info->setAdditionalInformation( 'invoice_fee_exluding_vat', $quote->getInvoiceFeeExcludedVat() );
+		$info->setAdditionalInformation( 'base_invoice_fee_exluding_vat', $quote->getBaseInvoiceFeeExcludedVat() );
+		$info->setAdditionalInformation( 'invoice_tax_amount', $quote->getInvoiceTaxAmount() );
+		$info->setAdditionalInformation( 'base_invoice_tax_amount', $quote->getBaseInvoiceTaxAmount() );
+		$info->setAdditionalInformation( 'invoice_fee_rate', $quote->getInvoiceFeeRate() );
+		
+		$info->save();
+	}
 }

@@ -3,10 +3,10 @@
     "type": "magento-module",
     "license": "OSL-v3.0",
     "homepage": "",
-    "description": "Card Gate Plus Payment Module",
+    "description": "Card Gate Payment Module",
     "authors": [
     {
-        "name": "Richard Schoots",
+        "name": "Cardgate BV",
         "email": "support@cardgate.com"
     }
 ],
