@@ -28,4 +28,10 @@ class Cardgate_Cgp_Block_Paymentfee_Adminhtml_Sales_Order_Totals extends Mage_Ad
 		
 		return Mage::helper( 'cgp/paymentfee' )->addToBlock( $this );
 	}
+	
+	public function getInvoice ()
+	{
+		return $this->getParentBlock()->getInvoice();
+	}
+	
 }
