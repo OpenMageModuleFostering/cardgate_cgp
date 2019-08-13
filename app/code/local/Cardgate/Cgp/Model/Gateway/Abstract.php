@@ -127,7 +127,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
     	 * @var Cardgate_Cgp_Model_Base $base
     	 */
     	$base = Mage::getSingleton( 'cgp/base' );
-    	if ( empty( $base->getConfigData( 'api_key' ) ) || empty( $base->getConfigData( 'api_id' ) ) ) {
+    	if ( ! $base->getConfigData( 'api_key' ) || ! $base->getConfigData( 'api_id' ) ) {
     		$this->_canRefund = false;
     		$this->_canRefundInvoicePartial = false;
     	}

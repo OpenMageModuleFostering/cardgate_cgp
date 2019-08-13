@@ -99,7 +99,7 @@
 "RESTful API Key","RESTful API Sleutel"
 "Needed only for refund-functionality: Fill in your secret API key. Please contact your account manager to retrieve the API Username and Key for your account.","Alleen nodig voor terugboekings-functionaliteit: Vul hier uw geheime API Sleutel in. Neem contact op met uw accoutmanager om de API Gebruikersnaam en Sleutel te ontvangen voor uw account."
 "Refunds enabled.","Terugboekingen ingeschakeld."
-"Test current RESTful settings","Test huidige RESTful instellingen"
+"Test current RESTful API settings.","Test huidige RESTful API instellingen."
 "Refunds disabled. Missing settings:","Terugboekingen uitgeschakeld. Ontbrekende instellingen:"
 "CardGate refund %s successfully authorised. Amount: %s","CardGate terugboeking %s succesvol geautoriseerd. Bedrag: %s"
 "CardGate refund %s failed. Amount: %s","CardGate terugboeking %s mislukt. Bedrag: %s"

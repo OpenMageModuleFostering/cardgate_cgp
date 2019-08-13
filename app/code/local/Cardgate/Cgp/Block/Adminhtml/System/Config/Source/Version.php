@@ -28,13 +28,13 @@ class Cardgate_Cgp_Block_Adminhtml_System_Config_Source_Version
 	    
 		$missing = array();
 	    foreach ( array('hash_key'=>'Hash Key','site_id'=>'Site ID','api_id'=>'RESTful API Username','api_key'=>'RESTful API Key') as $k=>$v ) {
-	    	if ( empty( $gateway->getConfigData( $k ) ) ) {
+	    	if ( !$gateway->getConfigData( $k ) ) {
 	    		$missing[$k] = Mage::helper( 'cgp' )->__($v);
 	    	}
 	    }
 	    if ( !count( $missing ) ) {
 	    	$sTestMode.= Mage::helper( 'cgp' )->__("Refunds enabled.") . ' <a href="/cgp/standard/test?action=restful&hash=' . md5( $gateway->getConfigData( 'site_id' ) . $gateway->getConfigData( 'hash_key' )) . '" target="_blank">'.
-	    			Mage::helper( 'cgp' )->__("Test current RESTful settings") . "</a><br/>\n";
+	    			Mage::helper( 'cgp' )->__("Test current RESTful API settings.") . "</a><br/>\n";
 	    } else {
 	    	$sTestMode.= Mage::helper( 'cgp' )->__("Refunds disabled. Missing settings:") . " '".implode("', '", $missing)."'.<br/>\n";
 	    }
