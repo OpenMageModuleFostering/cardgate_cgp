@@ -337,6 +337,18 @@ class Cardgate_Cgp_Model_Base extends Varien_Object
 				$this->log( $msg );
 				die( $msg );
 		}
+		
+		// Adiitional logging for direct-debit
+		if ( $this->getCallbackData( 'recipient_name' ) && $this->getCallbackData( 'recipient_iban' )
+		    && $this->getCallbackData( 'recipient_bic' ) && $this->getCallbackData( 'recipient_reference' )
+		) {
+		    $statusMessage.= "<br/>\n" . Mage::helper( 'cgp' )->__( 'Additional information' )." : "
+		        . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary' ) ." : ". $this->getCallbackData( 'recipient_name' )
+		        . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary IBAN' ) ." : ". $this->getCallbackData( 'recipient_iban' )
+		        . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Benificiary BIC' ) ." : ". $this->getCallbackData( 'recipient_bic' )
+		        . "<br/>\n" . Mage::helper( 'cgp' )->__( 'Reference' ) ." : ". $this->getCallbackData( 'recipient_reference' );
+		}
+		
 		// Update only certain states
 		$canUpdate = false;
 		$undoCancel = false;

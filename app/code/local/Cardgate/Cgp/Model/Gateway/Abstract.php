@@ -35,7 +35,8 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 	 *
 	 * @var string
 	 */
-	protected $_url = 'https://gateway.cardgateplus.com/';
+	protected $_url = 'https://secure.curopayments.net/gateway/cardgate/';
+	protected $_urlStaging = 'https://secure-staging.curopayments.net/gateway/cardgate/';
 
 	/**
 	 * supported countries
@@ -106,7 +107,8 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 		if ( ! empty( $_SERVER['CGP_GATEWAY_URL'] ) ) {
 			return $_SERVER['CGP_GATEWAY_URL'];
 		} else {
-			return $this->_url;
+		    $base = Mage::getSingleton( 'cgp/base' );
+			return $base->isTest() ? $this->_urlStaging : $this->_url;
 		}
 	}
 
@@ -247,6 +249,7 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 		$newState = Mage_Sales_Model_Order::STATE_PENDING_PAYMENT;
 		$newStatus = $this->getConfigData( 'initialized_status' );
 		$statusMessage = Mage::helper( 'cgp' )->__( 'Transaction started, waiting for payment.' );
+		$statusMessage.= "<br/>\n" . Mage::helper( 'cgp' )->__( 'Paymentmethod used' ) . ' : ' . $order->getPayment()->getMethod();
 		if ( $order->getState() != Mage_Sales_Model_Order::STATE_PROCESSING ) {
 			$order->setState( $newState, $newStatus, $statusMessage );
 			$order->save();
@@ -273,6 +276,101 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 		
 		$s_arr = array();
 		$s_arr['language'] = $this->getConfigData( 'lang' );
+		
+		$cartitems = array();
+		foreach ( $order->getAllItems() as $itemId => $item ) {
+		    if ( $item->getQtyToInvoice() > 0 ) {
+                $cartitems[] = array(
+                    'quantity' => $item->getQtyToInvoice(),
+                    'sku' => $item->getSku(),
+                    'name' => $item->getName(),
+                    'price' => sprintf( '%01.2f', ( float ) $item->getPriceInclTax() ),
+                    'vat_amount' => sprintf( '%01.2f', ( float ) $item->getTaxAmount() ),
+                    'vat' => ( float ) $item->getData( 'tax_percent' ),
+                    'vat_inc' => 1,
+                    'type' => 1
+                );
+		    }
+		}
+		
+		if ( $order->getDiscountAmount() < 0 ) {
+		    $amount = $order->getDiscountAmount();
+		    $applyAfter = Mage::helper( 'tax' )->applyTaxAfterDiscount( $order->getStoreId() );
+		    $priceIncludesTax = Mage::helper( 'tax' )->priceIncludesTax( $order->getStoreId() );
+		    	
+		    if ( $applyAfter == true && $priceIncludesTax == false ) {
+		        // With this setting active the discount will not have the correct value.
+		        // We need to take each respective products rate and calculate a new value.
+		        $amount = 0;
+		        foreach ( $order->getAllVisibleItems() as $product ) {
+		            $rate = $product->getTaxPercent();
+		            $newAmount = $product->getDiscountAmount() * ( ( $rate / 100 ) + 1 );
+		            $amount -= $newAmount;
+		        }
+		        // If the discount also extends to shipping
+		        $shippingDiscount = $order->getShippingDiscountAmount();
+		        if ( $shippingDiscount ) {
+		            $taxClass = Mage::getStoreConfig( 'tax/classes/shipping_tax_class' );
+		            $rate = $this->getTaxRate( $taxClass );
+		            $newAmount = $shippingDiscount * ( ( $rate / 100 ) + 1 );
+		            $amount -= $newAmount;
+		        }
+		    }
+		    
+		    $cartitems[] = array(
+		        'quantity' => '1',
+		        'sku' => 'discount',
+		        'name' => 'Discount',
+		        'price' => sprintf( '%01.2f', round( $amount, 2 ) ),
+		        'vat_amount' => 0,
+		        'vat' => 0,
+		        'vat_inc' => 1,
+		        'type' => 4
+		    );
+		}
+		
+		// add shipping
+		if ( $order->getShippingAmount() > 0 ) {
+		    	
+		    $tax_info = $order->getFullTaxInfo();
+		    	
+		    $flags = 8;
+		    if ( ! isset( $tax_info[0]['percent'] ) ) {
+		        $tax_rate = 0;
+		    } else {
+		        $tax_rate = $tax_info[0]['percent'];
+		        $flags += 32;
+		    }
+		    $tax_rate = ( isset( $tax_info[0]['percent'] ) ? $tax_info[0]['percent'] : 0 );
+		    $cartitems[] = array(
+		        'quantity' => '1',
+		        'sku' => 'shipping',
+		        'name' => 'Shipping fee',
+		        'price' => sprintf( '%01.2f', $order->getShippingInclTax() ),
+		        'vat_amount' => sprintf( '%01.2f', $order->getShippingTaxAmount() ),
+		        'vat' => $tax_rate,
+		        'vat_inc' => 1,
+		        'type' => 2
+		    );
+		}
+		
+		// add invoice fee
+		if ( $order->getPayment()->getAdditionalInformation('invoice_fee') > 0 ) {
+		    
+		    $tax_rate = $order->getPayment()->getAdditionalInformation('invoice_fee_rate');
+		    $cartitems[] = array(
+		        'quantity' => '1',
+		        'sku' => 'invoice',
+		        'name' => 'Invoice fee',
+		        'price' => sprintf( '%01.2f', $order->getPayment()->getAdditionalInformation('invoice_fee') ),
+		        'vat_amount' => ( isset( $tax_info[0]['percent'] ) ? round( $order->getPayment()->getAdditionalInformation('invoice_fee') * ( $tax_rate / 100 ), 2 ) : 0 ),
+		        'vat' => $tax_rate,
+		        'vat_inc' => 1,
+		        'type' => 5
+		    );
+		}
+		
+		$s_arr['cartitems'] = serialize( $cartitems );
 		
 		switch ( $this->_model ) {
 			// CreditCards
@@ -330,107 +428,6 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				$s_arr['language'] = $extra_data['klarna-language'];
 				$s_arr['account'] = 0;
 				
-				$cartitems = array();
-				
-				foreach ( $order->getAllItems() as $itemId => $item ) {
-					// add item
-					if ( $item->getQtyToInvoice() > 0 ) {
-						$cartitem = array();
-						$cartitem['qty'] = $item->getQtyToInvoice();
-						$cartitem['id'] = $item->getSku();
-						$cartitem['name'] = $item->getName();
-						$cartitem['price'] = sprintf( '%01.2f', ( float ) $item->getPriceInclTax() );
-						
-						$item_tax = ( float ) $item->getData( 'tax_percent' );
-						$cartitem['vat'] = $item_tax;
-						// $cartitem['discount'] = sprintf( '%01.2f',
-						// $item->getData( 'discount_percent' ) );
-						if ( $item_tax > 0 ) {
-							$cartitem['flags'] = 32;
-						} else {
-							$cartitem['flags'] = 0;
-						}
-						$cartitems[] = $cartitem;
-					}
-				}
-				
-				if ( $order->getDiscountAmount() < 0 ) {
-					$amount = $order->getDiscountAmount();
-					$applyAfter = Mage::helper( 'tax' )->applyTaxAfterDiscount( $order->getStoreId() );
-					if ( $applyAfter == true ) {
-						// With this setting active the discount will not have
-						// the correct
-						// value. We need to take each respective products rate
-						// and calculate
-						// a new value.
-						$amount = 0;
-						foreach ( $order->getAllVisibleItems() as $product ) {
-							$rate = $product->getTaxPercent();
-							$newAmount = $product->getDiscountAmount() * ( ( $rate / 100 ) + 1 );
-							$amount -= $newAmount;
-						}
-						// If the discount also extends to shipping
-						$shippingDiscount = $order->getShippingDiscountAmount();
-						if ( $shippingDiscount ) {
-							$taxClass = Mage::getStoreConfig( 'tax/classes/shipping_tax_class' );
-							$rate = $this->getTaxRate( $taxClass );
-							$newAmount = $shippingDiscount * ( ( $rate / 100 ) + 1 );
-							$amount -= $newAmount;
-						}
-					}
-					
-					$discount = array();
-					$discount['qty'] = 1;
-					$discount['id'] = '';
-					$discount['name'] = 'Discount total';
-					$discount['price'] = sprintf( '%01.2f', round( $amount, 2 ) );
-					$discount['vat'] = 0;
-					$discount['flags'] = 32;
-					
-					$cartitems[] = $discount;
-				}
-				
-				$settings = Mage::getStoreConfig( 'cgp/cgp_klarna' );
-				
-				// add shipping
-				if ( $order->getShippingAmount() > 0 ) {
-					
-					$tax_info = $order->getFullTaxInfo();
-					
-					$flags = 8;
-					if ( ! isset( $tax_info[0]['percent'] ) ) {
-						$tax_rate = 0;
-					} else {
-						$tax_rate = $tax_info[0]['percent'];
-						$flags += 32;
-					}
-
-					$price = round( $order->getShippingAmount() * ( 1 + $tax_rate / 100 ), 2 );
-					$shipping = array();
-					$shipping['qty'] = 1;
-					$shipping['id'] = '';
-					$shipping['name'] = 'Shipping fee';
-					$shipping['price'] = sprintf( '%01.2f', $price );
-					
-					$shipping['flags'] = $flags;
-					$shipping['vat'] = $tax_rate;
-					
-					$cartitems[] = $shipping;
-				}
-				
-				// add invoice fee
-				if ( $order->getPayment()->getAdditionalInformation('invoice_fee') > 0 ) {
-					$fee = array();
-					$fee['qty'] = 1;
-					$fee['id'] = '';
-					$fee['name'] = 'Invoice fee';
-					$fee['price'] = sprintf( '%01.2f', $order->getPayment()->getAdditionalInformation('invoice_fee') );
-					$fee['vat'] = $order->getPayment()->getAdditionalInformation('invoice_fee_rate');
-					$fee['flags'] = ( $fee['vat'] > 0 ) ? 32 : 0 ;
-					$cartitems[] = $fee;
-				}
-				
-				$s_arr['cartitems'] = serialize( $cartitems );
 				break;
 			
 			// Klarna
@@ -447,102 +444,6 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 				$s_arr['language'] = $extra_data['klarna-account-language'];
 				$s_arr['account'] = 1;
 				
-				$cartitems = array();
-				foreach ( $order->getAllItems() as $itemId => $item ) {
-					if ( $item->getQtyToInvoice() > 0 ) {
-						$cartitem = array();
-						$cartitem['qty'] = $item->getQtyToInvoice();
-						$cartitem['id'] = $item->getSku();
-						$cartitem['name'] = $item->getName();
-						
-						$cartitem['price'] = sprintf( '%01.2f', ( float ) $item->getPriceInclTax() );
-						
-						$item_tax = ( float ) $item->getData( 'tax_percent' );
-						$cartitem['vat'] = $item_tax;
-						if ( $item_tax > 0 ) {
-							$cartitem['flags'] = 32;
-						} else {
-							$cartitem['flags'] = 0;
-						}
-						$cartitems[] = $cartitem;
-					}
-				}
-				
-				if ( $order->getDiscountAmount() < 0 ) {
-					$amount = $order->getDiscountAmount();
-					$applyAfter = Mage::helper( 'tax' )->applyTaxAfterDiscount( $order->getStoreId() );
-					if ( $applyAfter == true ) {
-						// With this setting active the discount will not have
-						// the correct
-						// value. We need to take each respective products rate
-						// and calculate
-						// a new value.
-						$amount = 0;
-						foreach ( $order->getAllVisibleItems() as $product ) {
-							$rate = $product->getTaxPercent();
-							$newAmount = $product->getDiscountAmount() * ( ( $rate / 100 ) + 1 );
-							$amount -= $newAmount;
-						}
-						// If the discount also extends to shipping
-						$shippingDiscount = $order->getShippingDiscountAmount();
-						if ( $shippingDiscount ) {
-							$taxClass = Mage::getStoreConfig( 'tax/classes/shipping_tax_class' );
-							$rate = $this->getTaxRate( $taxClass );
-							$newAmount = $shippingDiscount * ( ( $rate / 100 ) + 1 );
-							$amount -= $newAmount;
-						}
-					}
-					
-					$discount = array();
-					$discount['qty'] = 1;
-					$discount['id'] = '';
-					$discount['name'] = 'Discount total';
-					$discount['price'] = sprintf( '%01.2f', round( $amount, 2 ) );
-					$discount['vat'] = 0;
-					$discount['flags'] = 32;
-					
-					$cartitems[] = $discount;
-				}
-				
-				// add shipping
-				if ( $order->getShippingAmount() > 0 ) {
-					
-					$tax_info = $order->getFullTaxInfo();
-					
-					$flags = 8;
-					if ( ! isset( $tax_info[0]['percent'] ) ) {
-						$tax_rate = 0;
-					} else {
-						$tax_rate = $tax_info[0]['percent'];
-						$flags += 32;
-					}
-
-					$price = round( $order->getShippingAmount() * ( 1 + $tax_rate / 100 ), 2 );
-					$shipping = array();
-					$shipping['qty'] = 1;
-					$shipping['id'] = '';
-					$shipping['name'] = 'Shipping fee';
-					$shipping['price'] = sprintf( '%01.2f', $price );
-					
-					$shipping['flags'] = $flags;
-					$shipping['vat'] = $tax_rate;
-					
-					$cartitems[] = $shipping;
-				}
-				
-				// add invoice fee
-				if ( $order->getPayment()->getAdditionalInformation('invoice_fee') > 0 ) {
-					$fee = array();
-					$fee['qty'] = 1;
-					$fee['id'] = '';
-					$fee['name'] = 'Invoice fee';
-					$fee['price'] = sprintf( '%01.2f', $order->getPayment()->getAdditionalInformation('invoice_fee') );
-					$fee['vat'] = $order->getPayment()->getAdditionalInformation('invoice_fee_rate');
-					$fee['flags'] = ( $fee['vat'] > 0 ) ? 32 : 0 ;
-					$cartitems[] = $fee;
-				}
-				
-				$s_arr['cartitems'] = serialize( $cartitems );
 				break;
 			
 			// Banktransfer
@@ -558,6 +459,16 @@ abstract class Cardgate_Cgp_Model_Gateway_Abstract extends Mage_Payment_Model_Me
 			// Przelewy24
 			case 'przelewy24':
 				$s_arr['option'] = 'przelewy24';
+				break;
+				
+			// Afterpay
+			case 'afterpay':
+				$s_arr['option'] = 'afterpay';
+				break;
+				
+			// Bitcoin
+			case 'bitcoin':
+				$s_arr['option'] = 'bitcoin';
 				break;
 			
 			// Default

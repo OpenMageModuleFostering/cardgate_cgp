@@ -10,7 +10,7 @@
 <config>
     <modules>
         <Cardgate_Cgp>
-            <version>1.1.1</version>
+            <version>1.1.4</version>
         </Cardgate_Cgp>
     </modules>
     
@@ -333,7 +333,17 @@
                 <active>1</active>
                 <model>cgp/gateway_przelewy24</model>
                 <title>CGP Przelewy24</title>
-            </cgp_przelewy24>                 
+            </cgp_przelewy24>
+            <cgp_afterpay>
+                <active>1</active>
+                <model>cgp/gateway_afterpay</model>
+                <title>CGP Afterpay</title>
+            </cgp_afterpay>
+            <cgp_bitcoin>
+                <active>1</active>
+                <model>cgp/gateway_bitcoin</model>
+                <title>CGP Bitcoin</title>
+            </cgp_bitcoin>
         </payment>
         
         <cgp>
@@ -444,7 +454,12 @@
                 <active>0</active>
                 <model>cgp/gateway_przelewy24</model>
                 <title>Przelewy24</title>
-            </cgp_przelewy24>              
+            </cgp_przelewy24>
+            <cgp_afterpay translate="title" module="cgp">
+                <active>0</active>
+                <model>cgp/gateway_afterpay</model>
+                <title>Afterpay</title>
+            </cgp_afterpay>
         </cgp>            
     </default>
 

@@ -42,6 +42,8 @@
 "Selected currency code ","Geselecteerde valuta code "
 " is not compatible with Card Gate Plus"," wordt niet ondersteund door Card Gate Plus"
 "Transaction started, waiting for payment.","Transactie gestart, wacht op betaling"
+"Paymentmethod used","Gebruikte betaalmethode"
+"Additional information","Extra informatie"
 "--Please select--","--Maak uw keuze--"
 "------ Additional Banks ------","----- Overige Banken -----"
 "Select your bank","Selecteer uw bank"
@@ -79,8 +81,6 @@
 "Yes = fee entered including tax / No = fee entered excluding tax","Ja = opgegeven tarief is incl BTW / Nee = opgegeven tarief is excl BTW"
 "Payment fee label","Betaaltoeslag beschrijving"
 "Short description which is shown on orders/invoices","Korte omschrijving welke zichtbaar is op orders/facturen"
-
-
 "Send Order Email only at payment","Verstuur bestelling Email pas bij betaling"
 "Send Order Email only after payment completion.","Verstuur de bestelling Email pas als de betaling afgerond is."
 "Instructions","Instructies"
@@ -89,4 +89,8 @@
 "Payment canceled by user.","Betaling geannuleerd door gebruiker."
 "Transaction pending: Waiting for customer action.", "Betaling pending: Wacht op actie van klant."
 "Transaction pending: Waiting for confirmation.","Betaling pending: Wacht op bevestiging." 
-
+"Version","Versie"
+"Benificiary","Begunstidge"
+"Benificiary IBAN","Begunstidge IBAN"
+"Benificiary BIC","Begunstidge BIC"
+"Reference","Referentie"

@@ -10,35 +10,22 @@ class Cardgate_Cgp_Block_Form_Ideal extends Mage_Payment_Block_Form
 {
 
 	protected $_banks = array( 
-			'0021' => 'Rabobank', 
-			'0031' => 'ABN Amro', 
-			'0091' => 'Friesland Bank', 
-			'0721' => 'ING', 
-			'0751' => 'SNS Bank', 
-			'0001' => '------ Additional Banks ------', 
-			'0801' => 'Knab',
-			'0161' => 'Van Lanschot Bankiers', 
-			'0511' => 'Triodos Bank', 
-			'0761' => 'ASN Bank', 
-			'0771' => 'SNS RegioBank' 
+			'' => 'Please select',
+			'RABONL2U' => 'Rabobank', 
+			'ABNANL2A' => 'ABN Amro Bank',
+			'INGBNL2A' => 'ING', 
+			'SNSBNL2A' => 'SNS Bank',
+			'KNABNL2H' => 'Knab',
+			'FVLBNL22' => 'Van Lanschot Bankiers', 
+			'TRIONL2U' => 'Triodos Bank', 
+			'ASNBNL21' => 'ASN Bank', 
+			'RBRBNL21' => 'RegioBank',
+            'BUNQNL2A' => 'bunq'
 	);
 
 	protected function _construct ()
 	{
 		parent::_construct();
-		
-		$client = new Varien_Http_Client('https://gateway.cardgateplus.com/cache/idealDirectory.dat');
-		try{
-			$response = $client->request();
-			if ($response->isSuccessful()) {
-				$aBanks = unserialize( $response->getBody() );
-				if ( is_array( $aBanks ) ) {
-					$this->_banks = $aBanks;
-				}
-			}
-		} catch (Exception $e) {
-		}
-		
 		$this->setTemplate( 'cardgate/cgp/form/ideal.phtml' );
 	}
 
@@ -88,34 +75,20 @@ class Cardgate_Cgp_Block_Form_Ideal extends Mage_Payment_Block_Form
 	 */
 	private function getBankOptions ()
 	{
-		$url = 'https://gateway.cardgateplus.com/cache/idealDirectoryRabobank.dat';
-		if ( ! function_exists( 'file_get_contents' ) ) {
-			$result = false;
-		} else {
-			$result = file_get_contents( $url );
-		}
 		
-		$aBanks = array();
-		
-		if ( $result ) {
-			$aBanks = unserialize( $result );
-			unset( $aBanks[0] );
-			$a2 = array();
-			foreach ( $aBanks as $id => $name ) {
-				if ( $id == 1 )
-					$id = '0001';
-				$a2[$id] = $name;
+		$client = new Varien_Http_Client('https://gateway.cardgateplus.com/cache/idealDirectoryCUROPayments.dat');
+		try{
+			$response = $client->request();
+			if ($response->isSuccessful()) {
+				$aBanks = unserialize( $response->getBody() );
+				if ( is_array( $aBanks ) ) {
+					unset($aBanks[0]);
+					$this->_banks = array_merge(array(''=>''),$aBanks);
+				}
 			}
-			$aBanks = $a2;
-			$aBanks = array_merge( array( 
-					'' => Mage::helper( 'cgp' )->__( '--Please select--' ) 
-			), $aBanks );
+		} catch (Exception $e) {
 		}
-		if ( count( $aBanks ) < 1 ) {
-			$aBanks = array_merge( array( 
-					'' => Mage::helper( 'cgp' )->__( '--Please select--' ) 
-			), $this->_banks );
-		}
-		return $aBanks;
+		$this->_banks[''] = Mage::helper( 'cgp' )->__( '--Please select--' );
+		return $this->_banks;
 	}
 }
