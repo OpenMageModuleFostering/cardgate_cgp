@@ -1,16 +1,19 @@
 {
-    "name": "OpenMageModuleFostering/Cardgate_Cgp",
+    "name": "OpenMageModuleFostering\/Cardgate_Cgp",
     "type": "magento-module",
     "license": "OSL-v3.0",
     "homepage": "",
     "description": "Card Gate Payment Module",
     "authors": [
-    {
-        "name": "Cardgate BV",
-        "email": "support@cardgate.com"
-    }
-],
+        {
+            "name": "Cardgate BV",
+            "email": "support@cardgate.com"
+        }
+    ],
     "suggest": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+        "magento-hackathon\/magento-composer-installer": "*"
+    },
+    "keywords": [
+        "openmage-module"
+    ]
 }
